@@ -1,10 +1,11 @@
 (* item *)
- type t = USDJPY | EURJPY | EURUSD
+ type t = Empty | USDJPY | EURJPY | EURUSD
 
  let to_int = function
    USDJPY -> 1 
  | EURJPY -> 2
  | EURUSD -> 3
+ | Empty  -> -1
 
  let make = function
    1 -> USDJPY
@@ -16,3 +17,5 @@
    USDJPY -> "USDJPY"
  | EURJPY -> "EURJPY"
  | EURUSD -> "EURUSD"
+ | Empty  -> "Empty"
+
