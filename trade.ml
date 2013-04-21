@@ -7,10 +7,12 @@ open CalendarLib
    seq_:	int;
    date_:	CalendarLib.Date.t;
    time_:	CalendarLib.Time.t option;
+   cpty_:	Counterparty.t;
    item_:	Item.t;
-   bs_:	Buysell.t;
+   bs_:		Buysell.t;
    lot_:	int;
    price_:	float option;
+   amt_:	float;
  }
 
  let make seq date time item bs lot price =
@@ -34,7 +36,7 @@ open CalendarLib
 CalendarLib.Time_Zone.change CalendarLib.Time_Zone.Local
 let date1 = CalendarLib.Date.make 2013 4 22 
 let time1 = CalendarLib.Time.make 22 0 1
-let sample1 = make 1 date1 (Some time1) 1 0 10000 (Some 194.325)
+let sample1 = make 1 date1 (Some time1) 1 0 10000 (Some 94.325)
 
 let sample =
   Random.init 8888;
