@@ -1,6 +1,9 @@
 (* position *)
 (* counter party 毎に持つべき? 少なくとも全通貨についてまとめて持つことは考えなければならない *)
 open CalendarLib
+(* abbreviation *)
+module T = Trade 
+ 
 type t = {
   seq_:		int;
   date_:	Date.t;
@@ -14,30 +17,34 @@ type t = {
 let init () = {seq_=(~-1); date_=(Date.make 1900 1 1); time_=(Time.make 0 0 0);
                item_=Item.Empty; lot_=0; vwap_=0.0; amt_=0.0}
 
+let calc_vwap pos trd = 
+  (* 平均売買価格がいくらになるか. positionの符号が変わる場合, その取引の価格となる *) 
+  (* positionの符号が変わらない場合, 加算対象となる取引のlotの符号とposの符号が同一なら, 加重平均,
+     そうでなければposの価格のまま *)
+  let sign_trd = (Buysell.to_lot_sign trd.T.bs_) in
+  let signed_trd_lot = sign_trd * trd.T.lot_ in
+  let signed_trd_amt = (float_of_int sign_trd) *. trd.T.amt_ in 
+  let total_lot = pos.lot_ + signed_trd_lot in 
+  if total_lot = 0 then 0.0
+  (* 符号が逆転する場合 *)
+  else if pos.lot_ >= 0 && total_lot < 0 || pos.lot_ <= 0 && total_lot > 0
+    then match (trd.T.price_) with 
+    | Some p -> p
+    | None -> raise Not_found 
+  (* 符号は変わらないが, 逆向きの取引を加える場合 *) 
+  else if pos.lot_ > 0 && sign_trd < 0 || pos.lot_ < 0 && sign_trd > 0 
+    then pos.vwap_
+  (* 同一の向きの取引を加える場合 *)
+  else (pos.amt_ +. signed_trd_amt ) /. (float_of_int total_lot)
+
 let add pos trd = 
-  let module T = Trade in
   match trd with
   | {T.seq_=seq; T.date_=date; T.time_=time; T.cpty_=cpty; T.item_=item; T.bs_=bs; T.lot_=lot;
      T.price_=price; T.amt_=amt} ->
     let sign_bs = Buysell.to_lot_sign bs in 
-    let total_lot = pos.lot_ + (sign_bs * lot) in
-(* vwap 計算は別に切り出すべき *)
-(*
-    let vwap =  
-      if pos.lot_ > 0 then
-        if total_lot > 0 then
-          (pos.vwap_ *. (float_of_int pos.lot_) +. amt) /. (float_of_int total_lot)
-        else if total_lot < 0 then
-          price
-        else 0.
-      else if pos.lot < 0 then
-        if total_lot < 0 then
-          (pos.vwap_ *. (float_of_int pos.lot_) -. amt) /. (float_of_int total_lot)
-*) 
-      
     {seq_=pos.seq_ + 1; date_=pos.date_; time_=pos.time_; item_=pos.item_;
      lot_=(pos.lot_ + sign_bs * lot);
-     vwap_=
+     vwap_= (calc_vwap pos trd);
      amt_ = (pos.amt_ +. amt)} 
     
 let to_string = function
