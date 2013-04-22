@@ -18,64 +18,6 @@
 # The standard OMakefile.
 # You will usually need to modify this file for your project.
 
-# Delete this line once you have configured this file
-eprintln($(CWD)/OMakefile is not configured)
-
-########################################################################
-# Phony targets are scoped, so you probably want to declare them first.
-#
-
-# .PHONY: all install clean
-
-########################################################################
-# Subdirectories.
-# You may want to include some subdirectories in this project.
-# If so, define the subdirectory targets and uncomment this section.
-#
-
-# .SUBDIRS:
-
-########################################################################
-# C configuration.
-# Delete this section if you are not building C files.
-#
-
-################################################
-# Configuration.  You might want to modify any of these
-# configuration variables.
-#
-
-# CFLAGS +=
-# ASFLAGS +=
-# LDFLAGS +=
-# INCLUDES +=
-
-################################################
-# Uncomment the following section if you want
-# to build a C program in the current directory.
-#
-
-# CFILES[] =
-#    file1
-#    main
-#
-# MAIN = main
-#
-# .DEFAULT: $(CProgram $(MAIN), $(CFILES))
-
-################################################
-# Uncomment the following section if you want to build a C library
-# in the current directory.
-#
-
-# LIBFILES[] =
-#    file1
-#    file2
-#
-# LIB = libxxx
-#
-# .DEFAULT: $(StaticCLibrary $(LIB), $(LIBFILES))
-
 ########################################################################
 # OCaml configuration.
 # Delete this section if you are not building OCaml files.
@@ -89,16 +31,16 @@ eprintln($(CWD)/OMakefile is not configured)
 #
 # This project requires ocamlfind (default - false).
 #
-# USE_OCAMLFIND = true
+USE_OCAMLFIND = true
 #
-# OCAMLPACKS[] =
-#    pack1
+OCAMLPACKS[] =
+	calendar
 #    pack2
-#
-# if $(not $(OCAMLFIND_EXISTS))
-#    eprintln(This project requires ocamlfind, but is was not found.)
-#    eprintln(You need to install ocamlfind and run "omake --configure".)
-#    exit 1
+
+if $(not $(OCAMLFIND_EXISTS))
+    eprintln(This project requires ocamlfind, but is was not found.)
+    eprintln(You need to install ocamlfind and run "omake --configure".)
+    exit 1
 
 #
 # Include path
@@ -110,8 +52,9 @@ eprintln($(CWD)/OMakefile is not configured)
 #
 # The default values are defined as follows:
 #
-# NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
-# BYTE_ENABLED = $(not $(OCAMLOPT_EXISTS))
+#NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
+#BYTE_ENABLED = $(not $(OCAMLOPT_EXISTS))
+BYTE_ENABLED = $(OCAMLOPT_EXISTS))
 
 #
 # Various options
@@ -135,20 +78,25 @@ eprintln($(CWD)/OMakefile is not configured)
 # Build an OCaml library
 #
 
-# FILES[] =
+FILES[] =
+  buysell
+  item
+  counterparty
+  trade
+  price
+  position
 #    file1
 #    file2
 #
-# LIB = main
+LIB = main
 #
-# .DEFAULT: $(OCamlLibrary $(LIB), $(FILES))
+.DEFAULT: $(OCamlLibrary $(LIB), $(FILES))
 
 ################################################
 # Build an OCaml program
 #
 
 # FILES[] =
-#    file1
 #    file2
 #
 # PROGRAM =
