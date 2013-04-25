@@ -17,9 +17,11 @@ let ask {ask_=a} = a
 let make seq date time item bid mid ask =
   {seq_=seq; date_=date; time_=time; item_=(Item.make item); bid_=bid; mid_=mid; ask_=ask}
 
+let header = "seq, date, time, item, bid, mid, ask\n"
+
 let to_string = function
 | {seq_=seq; date_=date; time_=time; item_=item; bid_=bid; mid_=mid; ask_=ask} ->
-  Printf.printf "seq:%d, date:%d-%02d-%02d, time:%d:%02d:%02d, item:%s, bid:%3.5f, mid:%3.5f, ask:%3.5f\n"
+  Printf.printf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%3.5f,%3.5f,%3.5f\n"
     seq 
     (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
     (Time.hour time) (Time.minute time) (Time.second time) 
