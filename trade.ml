@@ -20,11 +20,12 @@ open CalendarLib
     item1_=(Item.make item1); item2_=(Item.make item2);
     lot1_ =lot1;
     lot2_ = (match price with 
-      | Some x -> Some (x *. lot1) 
+      | Some x -> Some (x *. ~-.lot1) 
       | None -> None);
     price_=price
    }
 
+ let header = "seq,date,time,item1,lot1,item2,lot2,price\n"
  let to_string {seq_=seq; date_=date; time_=time; cpty_=cpty;
                 item1_=item1; lot1_=lot1; item2_=item2; lot2_=lot2;price_=price} = 
    match (time, price, lot2) with 
@@ -43,7 +44,6 @@ open CalendarLib
        (Counterparty.to_string cpty)
        (Item.to_string item1) lot1 
        (Item.to_string item2)
-  let header = "seq,date,time,item1,lot1,item2,lot2,price"
 
 (* test *)
 ;;
