@@ -1,5 +1,6 @@
 (* price module *)
 open CalendarLib
+open Iocommon
 type t = {
   seq_:	int;
   date_:    CalendarLib.Date.t;
@@ -17,17 +18,33 @@ let ask {ask_=a} = a
 let make seq date time item bid mid ask =
   {seq_=seq; date_=date; time_=time; item_=(Item.make item); bid_=bid; mid_=mid; ask_=ask}
 
-let header = "seq, date, time, item, bid, mid, ask\n"
-
 let to_string = function
 | {seq_=seq; date_=date; time_=time; item_=item; bid_=bid; mid_=mid; ask_=ask} ->
-  Printf.printf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%3.5f,%3.5f,%3.5f\n"
+  let s = Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%d,%3.5f,%3.5f,%3.5f\n"
     seq 
     (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
     (Time.hour time) (Time.minute time) (Time.second time) 
-    (Item.to_string item) bid mid ask
+    (Item.to_int item) bid mid ask
+  in s 
 
-let from_array_to_string a = Array.iter (fun x -> to_string x) a
+let header = "seq, date, time, item, bid, mid, ask"
+
+let of_string s (* data as string array *) = 
+  make (int_of_string s.(0)) (Iocommon.date_of_string s.(1)) (Iocommon.time_of_string s.(2))
+       (int_of_string s.(3)) 
+       (float_of_string s.(4)) (float_of_string s.(5)) (float_of_string s.(6)) 
+
+let from_array_to_string a = 
+  let s = Array.fold_left (fun x y -> x ^ (to_string y) ) "" a in
+  (print_string s; s)
+
+let load filename =
+  let dc = Csv.load filename in
+  let da = Csv.to_array dc in
+  Array.map (fun x -> of_string x) da
+  
+  (* let a_header = Str.split (Str.regexp_string ",") header in *) (* botu *)
+  (* let Csv.associate a_header dc *)
 
 (* test *)
 ;;

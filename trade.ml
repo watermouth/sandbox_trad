@@ -3,7 +3,7 @@
  (* trade: sequence number, date, time, item code(ccyPair id), buy-sell code, lot, price *)
  (*                    int, Date, Time, int,  *)
 open CalendarLib
- type t = {
+type t = {
    seq_:	int;
    date_:	CalendarLib.Date.t;
    time_:	CalendarLib.Time.t option;
@@ -13,9 +13,9 @@ open CalendarLib
    item2_:	Item.t;
    lot2_:	float option;
    price_:	float option;
- }
+}
 
- let make seq date time cpty item1 lot1 item2 price =
+let make seq date time cpty item1 lot1 item2 price =
    {seq_=seq; date_=date; time_=time; cpty_=(Counterparty.make cpty);
     item1_=(Item.make item1); item2_=(Item.make item2);
     lot1_ =lot1;
@@ -23,14 +23,14 @@ open CalendarLib
       | Some x -> Some (x *. ~-.lot1) 
       | None -> None);
     price_=price
-   }
+ }
 
- let header = "seq,date,time,item1,lot1,item2,lot2,price\n"
+ let header = "seq,date,time,item1,lot1,item2,lot2,price"
  let to_string {seq_=seq; date_=date; time_=time; cpty_=cpty;
                 item1_=item1; lot1_=lot1; item2_=item2; lot2_=lot2;price_=price} = 
-   match (time, price, lot2) with 
+   let s = match (time, price, lot2) with 
    | (Some vTime, Some vPrice, Some vLot2) -> let time = vTime in let price = vPrice in let lot2 = vLot2 in
-     Printf.printf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%s,%12.2f,%s,%12.2f,%3.5f\n"
+     Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%s,%12.2f,%s,%12.2f,%3.5f\n"
        seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
        (Time.hour time) (Time.minute time) (Time.second time) 
        (Counterparty.to_string cpty)
@@ -38,12 +38,13 @@ open CalendarLib
        (Item.to_string item2) lot2 
        price
    | (_, _, _) -> 
-     Printf.printf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%s,%12.2f,%s,,\n"
+     Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%s,%12.2f,%s,,\n"
        seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
        0 0 0 
        (Counterparty.to_string cpty)
        (Item.to_string item1) lot1 
        (Item.to_string item2)
+   in (print_string s; s)
 
 (* test *)
 ;;
@@ -65,5 +66,5 @@ let sample =
   );;
 
 (* show *)
-Array.iter (fun x -> to_string x) sample
+Array.fold_left (fun x y -> x ^ (to_string y)) "" sample
 

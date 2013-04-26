@@ -19,6 +19,11 @@
  | EUR -> "EUR"
  | Empty  -> "Empty"
 
+let of_string s = match s with
+  | "JPY" -> JPY
+  | "USD" -> USD
+  | "EUR" -> EUR
+  | _ -> raise (Match_failure (s,26, 37))
 (* test *)
 let sample1 = JPY
 let sample2 = USD

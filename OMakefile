@@ -35,6 +35,7 @@ USE_OCAMLFIND = true
 #
 OCAMLPACKS[] =
 	calendar
+        csv
 #    pack2
 
 if $(not $(OCAMLFIND_EXISTS))
@@ -79,6 +80,7 @@ BYTE_ENABLED = $(OCAMLOPT_EXISTS))
 #
 
 FILES[] =
+  iocommon
   buysell
   item
   counterparty
