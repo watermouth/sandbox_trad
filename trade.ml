@@ -1,12 +1,11 @@
 (* Trade module *)
-(* #require "calendar" *)
  (* trade: sequence number, date, time, item code(ccyPair id), buy-sell code, lot, price *)
  (*                    int, Date, Time, int,  *)
 open CalendarLib
 type t = {
    seq_:	int;
-   date_:	CalendarLib.Date.t;
-   time_:	CalendarLib.Time.t option;
+   date_:	Date.t;
+   time_:	Time.t option;
    cpty_:	Counterparty.t;
    item1_:	Item.t;
    lot1_:	float;
@@ -25,46 +24,68 @@ let make seq date time cpty item1 lot1 item2 price =
     price_=price
  }
 
- let header = "seq,date,time,item1,lot1,item2,lot2,price"
- let to_string {seq_=seq; date_=date; time_=time; cpty_=cpty;
+let header = "seq,date,time,item1,lot1,item2,lot2,price"
+
+let of_string_array s = 
+  {seq_=(int_of_string s.(0));date_=(Iocommon.date_of_string s.(1));
+   time_=Some (Iocommon.time_of_string (s.(2)));
+   cpty_=(Counterparty.make s.(3));
+   item1_=(Item.make (int_of_string s.(4))); lot1_=(float_of_string s.(5));
+   item2_=(Item.make (int_of_string s.(6))); lot2_= Some (float_of_string s.(7));
+   price_=Some (float_of_string s.(7))
+  }
+
+let to_string {seq_=seq; date_=date; time_=time; cpty_=cpty;
                 item1_=item1; lot1_=lot1; item2_=item2; lot2_=lot2;price_=price} = 
    let s = match (time, price, lot2) with 
    | (Some vTime, Some vPrice, Some vLot2) -> let time = vTime in let price = vPrice in let lot2 = vLot2 in
-     Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%s,%12.2f,%s,%12.2f,%3.5f\n"
+     Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%d,%12.2f,%d,%12.2f,%3.5f\n"
        seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
        (Time.hour time) (Time.minute time) (Time.second time) 
        (Counterparty.to_string cpty)
-       (Item.to_string item1) lot1 
-       (Item.to_string item2) lot2 
+       (Item.to_int item1) lot1 
+       (Item.to_int item2) lot2 
        price
    | (_, _, _) -> 
-     Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%s,%12.2f,%s,,\n"
+     Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%d,%12.2f,%d,,\n"
        seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
        0 0 0 
        (Counterparty.to_string cpty)
-       (Item.to_string item1) lot1 
-       (Item.to_string item2)
+       (Item.to_int item1) lot1 
+       (Item.to_int item2)
    in (print_string s; s)
+
+let load_from_csv fn =
+  let dc = Csv.load fn in
+  let da = Csv.to_array dc in
+  Array.map (fun x -> of_string_array x) da
+
+(* show *)
+let from_array_to_string a = 
+  let s = Array.fold_left (fun x y -> x ^ (to_string y)) "" a in
+  (print_string s; s)
+
 
 (* test *)
 ;;
-CalendarLib.Time_Zone.change CalendarLib.Time_Zone.Local
-let date1 = CalendarLib.Date.make 2013 4 22 
-let time1 = CalendarLib.Time.make 22 0 1
+Time_Zone.change Time_Zone.Local
+let date1 = Date.make 2013 4 22 
+let time1 = Time.make 22 0 1
 let sample1 = make 1 date1 (Some time1) "dummy" 1 10000. 0 (Some 94.325)
 
-let sample =
+let make_samples ?mode:(flg:bool=true) num =
   Random.init 8888;
-  let num = 10 in 
-  Array.append
-  (Array.init num
-    (fun i -> make i date1 (Some (Time.add (Time.make 7 0 0) (Time.Period.second i)))
+  if (flg) then
+    Array.init num
+      (fun i -> make i date1 (Some (Time.add (Time.make 7 0 0) (Time.Period.second i)))
               "dummy" 1 (10000. *. (if Random.bool () then 1. else (-1.))) 0 (Some 89.321))
-  )
-  (Array.init num
+  else
+    (Array.init num
     (fun i -> make (i+num) date1 None "dummy" 2 10000. 0 None) 
-  );;
+    );;
 
-(* show *)
-Array.fold_left (fun x y -> x ^ (to_string y)) "" sample
+(* sample output example
+print_string "sample output file name:"
+output_file (read_line ()) (Trade.from_array_to_string (Trade.make_samples 10))
+*)
 

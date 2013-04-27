@@ -1,6 +1,5 @@
 (* price module *)
 open CalendarLib
-open Iocommon
 type t = {
   seq_:	int;
   date_:    CalendarLib.Date.t;
@@ -29,7 +28,7 @@ let to_string = function
 
 let header = "seq, date, time, item, bid, mid, ask"
 
-let of_string s (* data as string array *) = 
+let of_string_arrray s (* data as string array *) = 
   make (int_of_string s.(0)) (Iocommon.date_of_string s.(1)) (Iocommon.time_of_string s.(2))
        (int_of_string s.(3)) 
        (float_of_string s.(4)) (float_of_string s.(5)) (float_of_string s.(6)) 
@@ -41,7 +40,8 @@ let from_array_to_string a =
 let load filename =
   let dc = Csv.load filename in
   let da = Csv.to_array dc in
-  Array.map (fun x -> of_string x) da
+  Array.map (fun x -> of_string_arrray x) da
+
   
   (* let a_header = Str.split (Str.regexp_string ",") header in *) (* botu *)
   (* let Csv.associate a_header dc *)
@@ -69,4 +69,10 @@ let make_samples num =
   );;
 
 from_array_to_string (make_samples 10)
+
+(* sample output *)
+(*
+Printf.printf "sample output file name(price)\n:"
+output_file (read_line ()) (Price.from_array_to_string (Price.make_samples 10))
+*)
 
