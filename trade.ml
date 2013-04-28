@@ -10,8 +10,8 @@ type t = {
    item1_:	Item.t;
    lot1_:	float;
    item2_:	Item.t;
-   lot2_:	float option;
-   price_:	float option;
+   mutable lot2_:	float option;
+   mutable price_:	float option;
 }
 
 let make seq date time cpty item1 lot1 item2 price =
@@ -23,6 +23,11 @@ let make seq date time cpty item1 lot1 item2 price =
       | None -> None);
     price_=price
  }
+
+let set_price trd ~price = 
+  trd.price_ <- Some price;
+  trd.lot2_ <- Some (~-. price *. trd.lot1_);
+  trd
 
 let header = "seq,date,time,item1,lot1,item2,lot2,price"
 
@@ -72,7 +77,6 @@ Time_Zone.change Time_Zone.Local
 let date1 = Date.make 2013 4 22 
 let time1 = Time.make 22 0 1
 let sample1 = make 1 date1 (Some time1) "dummy" 1 10000. 0 (Some 94.325)
-
 let make_samples ?mode:(flg:bool=true) num =
   Random.init 8888;
   if (flg) then
@@ -84,7 +88,16 @@ let make_samples ?mode:(flg:bool=true) num =
     (fun i -> make (i+num) date1 None "dummy" 2 10000. 0 None) 
     );;
 
-(* sample output example
+let test1 = sample1 = {seq_=1;date_=date1;time_=(Some time1);cpty_=(Counterparty.make "dummy");
+                       item1_=(Item.make 1); lot1_=10000.0;
+                       item2_=(Item.make 0); lot2_=(Some (~-. 94.325 *. 10000.0));
+                       price_=(Some 94.325)}
+let test_set_price1 =
+  let trd = make 1 date1 (Some time1) "dummy2" 1 10000.0 0 None in
+  let trd = set_price trd 100.0 in 
+  trd = (make 1 date1 (Some time1) "dummy2" 1 10000.0 0 (Some 100.0))
+
+  (* sample output exampl
 print_string "sample output file name:"
 output_file (read_line ()) (Trade.from_array_to_string (Trade.make_samples 10))
 *)

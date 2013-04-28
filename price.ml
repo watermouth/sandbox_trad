@@ -70,9 +70,4 @@ let make_samples num =
 
 from_array_to_string (make_samples 10)
 
-(* sample output *)
-(*
-Printf.printf "sample output file name(price)\n:"
-output_file (read_line ()) (Price.from_array_to_string (Price.make_samples 10))
-*)
 

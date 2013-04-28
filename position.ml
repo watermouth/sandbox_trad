@@ -28,8 +28,7 @@ let calc_vwap pos trd =
   (* 平均売買価格がいくらになるか. positionの符号が変わる場合, その取引の価格となる *) 
   (* positionの符号が変わらない場合, 加算対象となる取引のlotの符号とposの符号が同一なら, 加重平均,
      そうでなければposの価格のまま *)
-  let signed_trd_lot = trd.T.lot1_ in 
-  let total_lot = pos.lot1_ +. signed_trd_lot in 
+  let total_lot = pos.lot1_ +. trd.T.lot1_ in 
   if total_lot = 0.0 then None
   (* 符号が逆転する または pos.vwap_がNoneの場合*)
   else if pos.lot1_ >= 0.0 && total_lot < 0.0 || pos.lot1_ <= 0.0 && total_lot > 0.0 || pos.vwap_ = None
@@ -40,28 +39,47 @@ let calc_vwap pos trd =
   (* 同一の向きの取引を加える場合 *)
   else match (pos.vwap_, trd.T.lot2_) with
        (* pos.lot2_を使ってはいけない. vwapから計算する. *) 
-       | (Some vp, Some amt) -> Some ((pos.lot1_ *. vp +. amt) /. (total_lot))
+       | (Some vp, Some amt) -> Some ((pos.lot1_ *. vp -. amt) /. (total_lot)) (* lot2's sign is minus of lot1_*)
        | (_,_) -> None
 
-let add pos trd = 
+let copy pos =
+    {seq_=pos.seq_; date_=pos.date_; time_=pos.time_;
+     item1_=pos.item1_; item2_=pos.item2_; lot1_=pos.lot1_; lot2_=pos.lot2_; vwap_=pos.vwap_
+    } 
+
+let add ?mode:(do_override = true) pos trd = 
   match trd with
   | {T.seq_=seq; T.date_=date; T.time_=time;
      T.item1_=item1; T.lot1_=lot1;
      T.item2_=item2; T.lot2_=lot2;
      T.price_=price} -> 
-    {seq_=pos.seq_ + 1; date_=date; time_=(match time with Some x -> x | None -> assert false);
-     item1_=pos.item1_;
-     item2_=pos.item2_;
-     lot1_=(pos.lot1_ +. lot1);
-     lot2_=(pos.lot2_ +. (match lot2 with Some l -> l | None -> assert false));
-     vwap_= (calc_vwap pos trd);
-    } 
+    let pos = if do_override then pos else copy pos in
+      (pos.seq_ <- pos.seq_ + 1;
+      pos.date_ <- date;
+      pos.time_ <- (match time with Some x -> x | None -> assert false);
+      pos.lot1_ <- pos.lot1_ +. lot1;
+      pos.lot2_ <- pos.lot2_ +. (match lot2 with Some l -> l | None -> assert false);
+      pos.vwap_ <- (calc_vwap pos trd);
+      pos)
+    (* else 
+      {seq_=pos.seq_ + 1; date_=date; time_=(match time with Some x -> x | None -> assert false);
+       item1_=pos.item1_;
+       item2_=pos.item2_;
+       lot1_=(pos.lot1_ +. lot1);
+       lot2_=(pos.lot2_ +. (match lot2 with Some l -> l | None -> assert false));
+       vwap_= (calc_vwap pos trd);
+      } 
+    *)
+let add_trades ?mode:(do_override = true) pos trd_array =
+  let p = ref pos in
+  (Array.iter (fun trd -> p := add ~mode:do_override !p trd) trd_array;
+   !p)
 
 let to_string = function
   {seq_=seq; date_=date; time_=time; 
    item1_=item1; lot1_=lot1;
    item2_=item2; lot2_=lot2; vwap_=vwap} -> 
-  (Printf.printf "%6d, %d-%d-%d, %d:%d:%d, %s, %12.2f, %s, %12.2f, " 
+  (Printf.printf "%6d, %4d-%2d-%2d, %2d:%2d:%2d, %s, %12.2f, %s, %12.2f, " 
     seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date) 
     (Time.hour time) (Time.minute time) (Time.second time)  
     (Item.to_string item1) lot1
@@ -78,8 +96,11 @@ let trd1 = (Trade.make 1 date1 (Some time1) "dummy" 1 12000. 0 (Some 98.82));;
 let trd2 = (Trade.make 1 date1 (Some time1) "dummy" 1 ~-.12000. 0 (Some 98.80));;
 let trd3 = (Trade.make 1 date1 (Some time1) "dummy" 1 ~-.140000. 0 (Some 98.78));;
 let trd4 = (Trade.make 1 date1 (Some time1) "dummy" 1 140000. 0 (Some 98.78));;
+let trd10 = (Trade.make 1 date1 (Some time1) "dummy" 1 12000. 0 (Some 98.82));;
+let trd11 = (Trade.make 1 date1 (Some time1) "dummy" 1 5000. 0 (Some 98.80));;
+let trd_array1 = [|trd10; trd11|];;
 let sample1 = init Item.USD Item.JPY;;
-let sample2 = add sample1 trd1;;
+let sample2 = add ~mode:false sample1 trd1;;
 let sample3 = 
    {seq_=1;date_=date1;time_=time1;
     item1_=Item.USD;lot1_=100000.0;item2_=Item.JPY;lot2_=(~-.9900000.0);
@@ -117,7 +138,7 @@ let test_calc_vwap5 = (calc_vwap sample3 trd3) = Some 98.78
 let test_calc_vwap6 = (calc_vwap sample4 trd1) = (*同一符号取引*) 
   let lot2 = match trd1.T.lot2_ with Some x -> x | None -> 0.0 in
   let vp = match sample4.vwap_ with Some x -> x | None -> assert false in 
-  Some ((sample4.lot1_ *. vp +. lot2) /. (sample4.lot1_ +. trd1.T.lot1_))
+  Some ((sample4.lot1_ *. vp -. lot2) /. (sample4.lot1_ +. trd1.T.lot1_))
 let test_calc_vwap7 = (calc_vwap sample4 trd2) = (*異符号取引: pos符号不変 *)
   sample4.vwap_
 let test_calc_vwap8 = (calc_vwap sample4 trd3) = (*異符号取引: pos符号変化 *)
@@ -132,11 +153,21 @@ let test_calc_vwap105 = (calc_vwap sample5 trd4) = Some 98.78 (* not trd3 *)
 let test_calc_vwap106 = (calc_vwap sample6 trd2) = (*同一符号取引*) 
   let lot2 = match trd2.T.lot2_ with Some x -> x | None -> 0.0 in
   let vp = match sample6.vwap_ with Some x -> x | None -> assert false in 
-  Some ((sample6.lot1_ *. vp +. lot2) /. (sample6.lot1_ +. trd2.T.lot1_))
+  Some ((sample6.lot1_ *. vp -. lot2) /. (sample6.lot1_ +. trd2.T.lot1_))
 let test_calc_vwap107 = (calc_vwap sample6 trd1) = (*異符号取引: pos符号不変 *)
   sample6.vwap_
 let test_calc_vwap108 = (calc_vwap sample6 trd4) = (*異符号取引: pos符号変化 *)
   trd4.T.price_
 
-
+(* test: add_trades *)
+let test_add_trades1 = 
+  let p = ref (init Item.USD Item.JPY) in
+  (p := add_trades ~mode:true !p trd_array1;
+  (!p).lot1_)
+  = 17000.0
+let test_add_trades2 = 
+  let p = ref (init Item.USD Item.JPY) in
+  (p := add_trades ~mode:false !p trd_array1;
+  (!p).lot1_)
+  = 17000.0
 
