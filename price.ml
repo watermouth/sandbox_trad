@@ -11,23 +11,20 @@ type t = {
   ask_:     float;
 }
 
-let bid {bid_=b} = b
-let mid {mid_=m} = m
-let ask {ask_=a} = a
-
 let make seq date time item1 item2 bid mid ask =
   {seq_=seq; date_=date; time_=time; item1_=(Item.make item1);
    item2_=(Item.make item2);  bid_=bid; mid_=mid; ask_=ask}
 
-let to_string = function
-| {seq_=seq; date_=date; time_=time; item1_=item1;item2_=item2; bid_=bid; mid_=mid; ask_=ask} ->
-  let s = Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%d,%d,%3.5f,%3.5f,%3.5f\n"
+let to_string ?(crlf=true) 
+  {seq_=seq; date_=date; time_=time; item1_=item1;item2_=item2; bid_=bid; mid_=mid; ask_=ask} = 
+  let s = Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%d,%d,%3.5f,%3.5f,%3.5f"
     seq 
     (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
     (Time.hour time) (Time.minute time) (Time.second time) 
     (Item.to_int item1) (Item.to_int item2)
     bid mid ask
-  in s 
+  in 
+  if crlf then s ^ "\n" else s 
 
 let header = "seq, date, time, item1, item2, bid, mid, ask"
 

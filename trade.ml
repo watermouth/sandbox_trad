@@ -42,11 +42,11 @@ let of_string_array s =
    price_=Some price
   }
 
-let to_string {seq_=seq; date_=date; time_=time; cpty_=cpty;
+let to_string ?(crlf=true) {seq_=seq; date_=date; time_=time; cpty_=cpty;
                 item1_=item1; lot1_=lot1; item2_=item2; lot2_=lot2;price_=price} = 
    let s = match (time, price, lot2) with 
    | (Some vTime, Some vPrice, Some vLot2) -> let time = vTime in let price = vPrice in let lot2 = vLot2 in
-     Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%d,%12.2f,%d,%12.2f,%3.5f\n"
+     Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%d,%12.2f,%d,%12.2f,%3.5f"
        seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
        (Time.hour time) (Time.minute time) (Time.second time) 
        (Counterparty.to_string cpty)
@@ -54,13 +54,14 @@ let to_string {seq_=seq; date_=date; time_=time; cpty_=cpty;
        (Item.to_int item2) lot2 
        price
    | (_, _, _) -> 
-     Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%d,%12.2f,%d,,\n"
+     Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%d,%12.2f,%d,,"
        seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
        0 0 0 
        (Counterparty.to_string cpty)
        (Item.to_int item1) lot1 
        (Item.to_int item2)
-   in (print_string s; s)
+   in 
+   if crlf then s ^ "\n" else s 
 
 let load_from_csv fn =
   let dc = Csv.load fn in

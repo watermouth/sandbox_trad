@@ -80,19 +80,24 @@ let calc_pl pos price =
   let latent = (pos.lot1_ *. price) in
   (pos.lot2_, latent, pos.lot2_ +. latent)
 
-let to_string = function
+let to_string ?(crlf=true) 
   {seq_=seq; date_=date; time_=time; 
    item1_=item1; lot1_=lot1;
-   item2_=item2; lot2_=lot2; vwap_=vwap} -> 
-  (Printf.printf "%6d, %4d-%02d-%02d, %02d:%02d:%02d, %s, %12.2f, %s, %12.2f, " 
+   item2_=item2; lot2_=lot2; vwap_=vwap}  = 
+  let s = 
+  Printf.sprintf "%6d, %4d-%02d-%02d, %02d:%02d:%02d, %s, %12.2f, %s, %12.2f, " 
     seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date) 
     (Time.hour time) (Time.minute time) (Time.second time)  
     (Item.to_string item1) lot1
-    (Item.to_string item2) lot2);
+    (Item.to_string item2) lot2
+  in let s = s ^ 
   (match vwap with 
-   | Some x -> Printf.printf "%3.6f\n" x
-   | None -> print_newline ()
+   | Some x -> Printf.sprintf "%10.5f" x
+   | None -> Printf.sprintf "%10.5f" 0.0
   )
+  in 
+  let s = if crlf then s ^ "\n" else s in
+  s
 
 (* sample *)
 let date1 = Date.make 2013 4 23;;
