@@ -87,6 +87,7 @@ FILES[] =
   trade
   price
   position
+  simulate
 #    file1
 #    file2
 #

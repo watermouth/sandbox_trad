@@ -32,12 +32,14 @@ let set_price trd ~price =
 let header = "seq,date,time,item1,lot1,item2,lot2,price"
 
 let of_string_array s = 
+  let lot1 = float_of_string s.(5) in
+  let price = float_of_string s.(8) in 
   {seq_=(int_of_string s.(0));date_=(Iocommon.date_of_string s.(1));
    time_=Some (Iocommon.time_of_string (s.(2)));
    cpty_=(Counterparty.make s.(3));
-   item1_=(Item.make (int_of_string s.(4))); lot1_=(float_of_string s.(5));
-   item2_=(Item.make (int_of_string s.(6))); lot2_= Some (float_of_string s.(7));
-   price_=Some (float_of_string s.(7))
+   item1_=(Item.make (int_of_string s.(4))); lot1_=lot1;
+   item2_=(Item.make (int_of_string s.(6))); lot2_= Some (price *. ~-.lot1);
+   price_=Some price
   }
 
 let to_string {seq_=seq; date_=date; time_=time; cpty_=cpty;
@@ -68,12 +70,13 @@ let load_from_csv fn =
 (* show *)
 let from_array_to_string a = 
   let s = Array.fold_left (fun x y -> x ^ (to_string y)) "" a in
-  (print_string s; s)
+  (s)
 
 
 (* test *)
 ;;
 Time_Zone.change Time_Zone.Local
+let test_result = ref [];;
 let date1 = Date.make 2013 4 22 
 let time1 = Time.make 22 0 1
 let sample1 = make 1 date1 (Some time1) "dummy" 1 10000. 0 (Some 94.325)
@@ -82,10 +85,10 @@ let make_samples ?mode:(flg:bool=true) num =
   if (flg) then
     Array.init num
       (fun i -> make i date1 (Some (Time.add (Time.make 7 0 0) (Time.Period.second i)))
-              "dummy" 1 (10000. *. (if Random.bool () then 1. else (-1.))) 0 (Some 89.321))
+              "dummy" 1 (10000. *. (if (Random.int 10) < 6 then 1. else (-1.))) 0 (Some 90.000))
   else
     (Array.init num
-    (fun i -> make (i+num) date1 None "dummy" 2 10000. 0 None) 
+    (fun i -> make (i+num) date1 None "dummy" 1 10000. 0 None) 
     );;
 
 let test1 = sample1 = {seq_=1;date_=date1;time_=(Some time1);cpty_=(Counterparty.make "dummy");
@@ -95,10 +98,7 @@ let test1 = sample1 = {seq_=1;date_=date1;time_=(Some time1);cpty_=(Counterparty
 let test_set_price1 =
   let trd = make 1 date1 (Some time1) "dummy2" 1 10000.0 0 None in
   let trd = set_price trd 100.0 in 
-  trd = (make 1 date1 (Some time1) "dummy2" 1 10000.0 0 (Some 100.0))
+  trd = (make 1 date1 (Some time1) "dummy2" 1 10000.0 0 (Some 100.0));;
 
-  (* sample output exampl
-print_string "sample output file name:"
-output_file (read_line ()) (Trade.from_array_to_string (Trade.make_samples 10))
-*)
-
+test_result := test1 :: test_set_price1 :: !test_result;;
+Printf.printf "Trade test result: %b\n" (List.for_all (fun x -> x) !test_result)
