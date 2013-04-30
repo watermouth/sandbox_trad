@@ -10,4 +10,7 @@
 *omc
 *omakedb
 *.dat
+*.opt
+*.run
+*.out
 

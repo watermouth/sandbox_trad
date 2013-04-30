@@ -28,20 +28,19 @@ let to_string ?(crlf=true)
 
 let header = "seq, date, time, item1, item2, bid, mid, ask"
 
-let of_string_arrray s (* data as string array *) = 
+let of_string_array s (* data as string array *) = 
   make (int_of_string s.(0)) (Iocommon.date_of_string s.(1)) (Iocommon.time_of_string s.(2))
        (int_of_string s.(3)) (int_of_string s.(4)) 
        (float_of_string s.(5)) (float_of_string s.(6)) (float_of_string s.(7)) 
 
 let from_array_to_string a = 
   let s = Array.fold_left (fun x y -> x ^ (to_string y) ) "" a in
-  (print_string s; s)
+  (s)
 
 let load_from_csv filename =
   let dc = Csv.load filename in
   let da = Csv.to_array dc in
-  Array.map (fun x -> of_string_arrray x) da
-
+  Array.map (fun x -> of_string_array x) da
   
   (* let a_header = Str.split (Str.regexp_string ",") header in *) (* botu *)
   (* let Csv.associate a_header dc *)

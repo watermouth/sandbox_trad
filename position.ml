@@ -47,7 +47,7 @@ let copy pos =
      item1_=pos.item1_; item2_=pos.item2_; lot1_=pos.lot1_; lot2_=pos.lot2_; vwap_=pos.vwap_
     } 
 
-let add ?mode:(do_override = true) pos trd = 
+let add ?mode:(do_override = false) pos trd = 
   match trd with
   | {T.seq_=seq; T.date_=date; T.time_=time;
      T.item1_=item1; T.lot1_=lot1;
@@ -63,7 +63,7 @@ let add ?mode:(do_override = true) pos trd =
       pos.vwap_ <- vwap;
       pos)
 
-let add_trades ?mode:(do_override = true) pos trd_array =
+let add_trades ?mode:(do_override = false) pos trd_array =
   let p = ref pos in
   (Array.iter (fun trd -> p := add ~mode:do_override !p trd) trd_array;
    !p)
@@ -71,7 +71,7 @@ let add_trades ?mode:(do_override = true) pos trd_array =
 let add_trade_list pos trd_list =
   let rec sub p lst = match lst with
   | [] -> p
-  | h::t -> sub (add p h) t 
+  | h::t -> sub (add ~mode:false p h) t 
   in sub pos trd_list
 
 (* profit loss calculation *)
@@ -85,11 +85,11 @@ let to_string ?(crlf=true)
    item1_=item1; lot1_=lot1;
    item2_=item2; lot2_=lot2; vwap_=vwap}  = 
   let s = 
-  Printf.sprintf "%6d, %4d-%02d-%02d, %02d:%02d:%02d, %s, %12.2f, %s, %12.2f, " 
+  Printf.sprintf "%5d,%4d-%02d-%02d,%02d:%02d:%02d,%d,%7.0f,%d,%12.2f," 
     seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date) 
     (Time.hour time) (Time.minute time) (Time.second time)  
-    (Item.to_string item1) lot1
-    (Item.to_string item2) lot2
+    (Item.to_int item1) lot1
+    (Item.to_int item2) lot2
   in let s = s ^ 
   (match vwap with 
    | Some x -> Printf.sprintf "%10.5f" x
@@ -98,6 +98,14 @@ let to_string ?(crlf=true)
   in 
   let s = if crlf then s ^ "\n" else s in
   s
+
+let from_array_to_string a = 
+  let s = Array.fold_left (fun x y -> x ^ (to_string y)) "" a in
+  (s)
+
+let from_array_to_csv a = ""
+
+;;
 
 (* sample *)
 let date1 = Date.make 2013 4 23;;
