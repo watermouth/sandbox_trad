@@ -53,8 +53,8 @@ Trade.from_array_to_string trade1;;
 Price.from_array_to_string price1;;
 Position.to_string 
   (Array.fold_left (fun x y -> print_string (Position.to_string x); Position.add ~mode:false x y) p trade1);;
-print_string "press return \n";;
-read_line ();;
+(* print_string "press return \n";;
+read_line ();; *)
 
 (* from binary data *)
 let trade101 = 
