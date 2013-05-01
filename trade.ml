@@ -6,7 +6,7 @@ type t = {
    seq_:	int;
    date_:	Date.t;
    time_:	Time.t option;
-   cpty_:	Counterparty.t;
+   cpty_:	Counterparty.t option;
    item1_:	Item.t;
    lot1_:	float;
    item2_:	Item.t;
@@ -15,7 +15,7 @@ type t = {
 }
 
 let make seq date time cpty item1 lot1 item2 price =
-   {seq_=seq; date_=date; time_=time; cpty_=(Counterparty.make cpty);
+   {seq_=seq; date_=date; time_=time; cpty_=(if cpty = "" then None else Some (Counterparty.make cpty));
     item1_=(Item.make item1); item2_=(Item.make item2);
     lot1_ =lot1;
     lot2_ = (match price with 
@@ -36,7 +36,7 @@ let of_string_array s =
   let price = float_of_string s.(8) in 
   {seq_=(int_of_string s.(0));date_=(Iocommon.date_of_string s.(1));
    time_=Some (Iocommon.time_of_string (s.(2)));
-   cpty_=(Counterparty.make s.(3));
+   cpty_=(Some (Counterparty.make s.(3)));
    item1_=(Item.make (int_of_string s.(4))); lot1_=lot1;
    item2_=(Item.make (int_of_string s.(6))); lot2_= Some (price *. ~-.lot1);
    price_=Some price
@@ -44,20 +44,25 @@ let of_string_array s =
 
 let to_string ?(crlf=true) {seq_=seq; date_=date; time_=time; cpty_=cpty;
                 item1_=item1; lot1_=lot1; item2_=item2; lot2_=lot2;price_=price} = 
-   let s = match (time, price, lot2) with 
-   | (Some vTime, Some vPrice, Some vLot2) -> let time = vTime in let price = vPrice in let lot2 = vLot2 in
+   let cpty = match cpty with Some c -> Counterparty.to_string c | None -> "" in 
+   let (hh,mm,ss) = match time with
+     | Some x -> ((Time.hour x), (Time.minute x), (Time.second x))
+     | None -> (0,0,0)
+   in
+   let s = match (price, lot2) with 
+   | (Some vPrice, Some vLot2) -> let price = vPrice in let lot2 = vLot2 in
      Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%d,%12.2f,%d,%12.2f,%3.5f"
        seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
-       (Time.hour time) (Time.minute time) (Time.second time) 
-       (Counterparty.to_string cpty)
+       hh mm ss 
+       (cpty)
        (Item.to_int item1) lot1 
        (Item.to_int item2) lot2 
        price
-   | (_, _, _) -> 
+   | (_, _) -> 
      Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%s,%d,%12.2f,%d,,"
        seq (Date.year date) (Date.int_of_month (Date.month date)) (Date.day_of_month date)
-       0 0 0 
-       (Counterparty.to_string cpty)
+       hh mm ss 
+       (cpty)
        (Item.to_int item1) lot1 
        (Item.to_int item2)
    in 
@@ -92,7 +97,7 @@ let make_samples ?mode:(flg:bool=true) num =
     (fun i -> make (i+num) date1 None "dummy" 1 10000. 0 None) 
     );;
 
-let test1 = sample1 = {seq_=1;date_=date1;time_=(Some time1);cpty_=(Counterparty.make "dummy");
+let test1 = sample1 = {seq_=1;date_=date1;time_=(Some time1);cpty_=(Some (Counterparty.make "dummy"));
                        item1_=(Item.make 1); lot1_=10000.0;
                        item2_=(Item.make 0); lot2_=(Some (~-. 94.325 *. 10000.0));
                        price_=(Some 94.325)}
@@ -103,3 +108,7 @@ let test_set_price1 =
 
 test_result := test1 :: test_set_price1 :: !test_result;;
 Printf.printf "Trade test result: %b\n" (List.for_all (fun x -> x) !test_result)
+
+let time2 = Time.make 0 0 25200;;
+let sample2 = make 1000 date1 (Some time2) "dummy2" 1 10000. 0 None;;
+

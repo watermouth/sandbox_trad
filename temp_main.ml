@@ -9,5 +9,5 @@ let price101 =
   v
 let p = Position.init Item.USD Item.JPY;;
 
-let _ = Simulate.simulate p price101 trade101
+let _ = Simulate.simulate p price101 price101 trade101
 

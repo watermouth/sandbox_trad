@@ -86,7 +86,9 @@ FILES[] =
   counterparty
   trade
   price
+  tradehandler
   position
+  availableinfo
   simulate
 #    file1
 #    file2

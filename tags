@@ -1,0 +1,170 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+Availableinfo	availableinfo.ml	/^(* avaiable information for cover *)$/;"	M
+Buy	buysell.ml	/^ type t = Buy | Sell$/;"	C	type:t
+Buysell	buysell.ml	/^(* buysell *)$/;"	M
+Counterparty	counterparty.ml	/^(* counter party *)$/;"	M
+EUR	item.ml	/^ type t = Empty | JPY | USD | EUR$/;"	C	type:t
+Empty	item.ml	/^ type t = Empty | JPY | USD | EUR$/;"	C	type:t
+Iocommon	iocommon.ml	/^(* IO common *)$/;"	M
+Item	item.ml	/^(* item *)$/;"	M
+JPY	item.ml	/^ type t = Empty | JPY | USD | EUR$/;"	C	type:t
+Position	position.ml	/^(* position *)$/;"	M
+Ppp	ppp.ml	/^#require "calendar"$/;"	M
+Price	price.ml	/^(* price module *)$/;"	M
+Sample_generation	sample_generation.ml	/^(* sample data generation *)$/;"	M
+Sell	buysell.ml	/^ type t = Buy | Sell$/;"	C	type:t
+Simulate	simulate.ml	/^(* simulator *)$/;"	M
+T	position.ml	/^module T = Trade $/;"	M
+Temp_main	temp_main.ml	/^(* from binary data *)$/;"	M
+Test_simulate	test_simulate.ml	/^(* test: simulate.ml *)$/;"	M
+Trade	trade.ml	/^(* Trade module *)$/;"	M
+USD	item.ml	/^ type t = Empty | JPY | USD | EUR$/;"	C	type:t
+a	price.ml	/^    let a = sample_ask +. if Random.bool () then diff else (~-.diff) in$/;"	v
+add	position.ml	/^let add ?mode:(do_override = false) pos trd = $/;"	v
+add_trade_list	position.ml	/^let add_trade_list pos trd_list =$/;"	v
+add_trades	position.ml	/^let add_trades ?mode:(do_override = false) pos trd_array =$/;"	v
+ask_	price.ml	/^  ask_:     float;$/;"	r	type:t
+ask_	simulate.ml	/^  ask_:		float array;$/;"	r	type:t
+bid_	price.ml	/^  bid_:	float;$/;"	r	type:t
+bid_	simulate.ml	/^  bid_:		float array;$/;"	r	type:t
+calc_pl	position.ml	/^let calc_pl pos price =$/;"	v
+calc_vwap	position.ml	/^let calc_vwap pos trd = $/;"	v
+copy	position.ml	/^let copy pos =$/;"	v
+cpr_	availableinfo.ml	/^  cpr_:			Price.t array;$/;"	r	type:t
+cpty	trade.ml	/^   let cpty = match cpty with Some c -> Counterparty.to_string c | None -> "" in $/;"	v
+cpty_	trade.ml	/^   cpty_:	Counterparty.t option;$/;"	r	type:t
+date_	position.ml	/^  mutable date_:	Date.t ;$/;"	r	type:t
+date_	price.ml	/^  date_:    CalendarLib.Date.t;$/;"	r	type:t
+date_	trade.ml	/^   date_:	Date.t;$/;"	r	type:t
+date_of_string	iocommon.ml	/^let date_of_string s = (* s = "yyyy-mm-dd" *)$/;"	v
+delay_	availableinfo.ml	/^  delay_:		int;$/;"	r	type:t
+direct_cover	simulate.ml	/^let direct_cover (idx:int) info trd_list cvtrd_list cover_hash = $/;"	v
+from_array_to_csv	position.ml	/^let from_array_to_csv a = ""$/;"	v
+from_array_to_string	position.ml	/^let from_array_to_string a = $/;"	v
+from_array_to_string	price.ml	/^let from_array_to_string a = $/;"	v
+h_ask_	simulate.ml	/^  h_ask_:	float array;$/;"	r	type:t
+h_bid_	simulate.ml	/^  h_bid_:	float array;$/;"	r	type:t
+header	price.ml	/^let header = "seq, date, time, item1, item2, bid, mid, ask"$/;"	v
+header	trade.ml	/^let header = "seq,date,time,item1,lot1,item2,lot2,price"$/;"	v
+hpr_	availableinfo.ml	/^  hpr_:			Price.t array;$/;"	r	type:t
+init	position.ml	/^let init item1 item2 =$/;"	v
+item1_	position.ml	/^  item1_:		Item.t ;$/;"	r	type:t
+item1_	price.ml	/^  item1_:    Item.t;$/;"	r	type:t
+item1_	trade.ml	/^   item1_:	Item.t;$/;"	r	type:t
+item2_	position.ml	/^  item2_:		Item.t ;$/;"	r	type:t
+item2_	price.ml	/^  item2_:    Item.t;$/;"	r	type:t
+item2_	trade.ml	/^   item2_:	Item.t;$/;"	r	type:t
+load_from_csv	price.ml	/^let load_from_csv filename =$/;"	v
+load_from_csv	trade.ml	/^let load_from_csv fn =$/;"	v
+lot1_	position.ml	/^  mutable lot1_:	float ;$/;"	r	type:t
+lot1_	trade.ml	/^   lot1_:	float;$/;"	r	type:t
+lot2	position.ml	/^  let lot2 = match trd1.T.lot2_ with Some x -> x | None -> 0.0 in$/;"	v
+lot2	position.ml	/^  let lot2 = match trd2.T.lot2_ with Some x -> x | None -> 0.0 in$/;"	v
+lot2_	position.ml	/^  mutable lot2_:	float ;$/;"	r	type:t
+lot2_	trade.ml	/^   mutable lot2_:	float option;$/;"	r	type:t
+make	counterparty.ml	/^let make name = {name_=name}$/;"	v
+make	item.ml	/^ let make = function$/;"	v
+make	price.ml	/^let make seq date time item1 item2 bid mid ask =$/;"	v
+make	trade.ml	/^let make seq date time cpty item1 lot1 item2 price =$/;"	v
+make_samples	trade.ml	/^let make_samples ?mode:(flg:bool=true) num =$/;"	v
+mid_	price.ml	/^  mid_:     float;$/;"	r	type:t
+name_	counterparty.ml	/^  name_:	string;$/;"	r	type:t
+nrow_	simulate.ml	/^  nrow_:	int;$/;"	r	type:t
+of_string	item.ml	/^let of_string s = match s with$/;"	v
+of_string_array	price.ml	/^let of_string_array s (* data as string array *) = $/;"	v
+of_string_array	trade.ml	/^let of_string_array s = $/;"	v
+p	position.ml	/^  let p = ref pos in$/;"	v
+p	temp_main.ml	/^let p = Position.init Item.USD Item.JPY;;$/;"	v
+p	test_simulate.ml	/^let p = Position.init Item.USD Item.JPY;;$/;"	v
+pl_latent_	simulate.ml	/^  pl_latent_:	float array;$/;"	r	type:t
+pl_total_	simulate.ml	/^  pl_total_:	float array;$/;"	r	type:t
+pos	position.ml	/^    let pos = if do_override then pos else copy pos in$/;"	v
+pos_	availableinfo.ml	/^  pos_:		Position.t array;$/;"	r	type:t
+pos_hist_	simulate.ml	/^  pos_hist_:	Position.t array; (* position history *)$/;"	r	type:t
+price101	temp_main.ml	/^let price101 =$/;"	v
+price101	test_simulate.ml	/^let price101 =$/;"	v
+price_	trade.ml	/^   mutable price_:	float option;$/;"	r	type:t
+price_loaded	sample_generation.ml	/^let price_loaded =$/;"	v
+s	position.ml	/^  in let s = s ^ $/;"	v
+s	position.ml	/^  let s = $/;"	v
+s	position.ml	/^  let s = if crlf then s ^ "\\n" else s in$/;"	v
+s	price.ml	/^  let s = Printf.sprintf "%6d,%d-%02d-%02d,%d:%02d:%02d,%d,%d,%3.5f,%3.5f,%3.5f"$/;"	v
+s	simulate.ml	/^   let s = ref "" in$/;"	v
+s	trade.ml	/^   let s = match (time, price, lot2) with $/;"	v
+sample1	item.ml	/^let sample1 = JPY$/;"	v
+sample1	trade.ml	/^let sample1 = make 1 date1 (Some time1) "dummy" 1 10000. 0 (Some 94.325)$/;"	v
+sample2	item.ml	/^let sample2 = USD$/;"	v
+sample3	item.ml	/^let sample3 = Empty$/;"	v
+seq_	position.ml	/^  mutable seq_:		int ;$/;"	r	type:t
+seq_	price.ml	/^  seq_:	int;$/;"	r	type:t
+seq_	trade.ml	/^   seq_:	int;$/;"	r	type:t
+set_price	trade.ml	/^let set_price trd ~price = $/;"	v
+simulate	simulate.ml	/^let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t array) =$/;"	v
+t	availableinfo.ml	/^type t = {$/;"	t
+t	buysell.ml	/^ type t = Buy | Sell$/;"	t
+t	counterparty.ml	/^type t = {$/;"	t
+t	item.ml	/^ type t = Empty | JPY | USD | EUR$/;"	t
+t	position.ml	/^type t = {$/;"	t
+t	price.ml	/^type t = {$/;"	t
+t	simulate.ml	/^type t = {$/;"	t
+t	trade.ml	/^type t = {$/;"	t
+test1	iocommon.ml	/^let test1 = date_of_string "2012-11-12" = (Date.make 2012 11 12)$/;"	v
+test1	iocommon.ml	/^let test1 = time_of_string "7:00:00" = (Time.make 7 0 0)$/;"	v
+test1	item.ml	/^let test1 = make 0 = JPY$/;"	v
+test1	trade.ml	/^let test1 = sample1 = {seq_=1;date_=date1;time_=(Some time1);cpty_=(Some (Counterparty.make "dummy"));$/;"	v
+test11	item.ml	/^let test11 = to_string sample1 = "JPY"$/;"	v
+test2	iocommon.ml	/^let test2 = date_of_string "2013-02-07" = (Date.make 2013 2 7)$/;"	v
+test2	iocommon.ml	/^let test2 = time_of_string "18:32:04" = (Time.make 18 32 4)$/;"	v
+test2	item.ml	/^let test2 = make 1 = USD$/;"	v
+test_add_trade_list1	position.ml	/^let test_add_trade_list1 =$/;"	v
+test_add_trade_list2	position.ml	/^let test_add_trade_list2 = $/;"	v
+test_add_trades1	position.ml	/^let test_add_trades1 = $/;"	v
+test_add_trades2	position.ml	/^let test_add_trades2 = $/;"	v
+test_calc_pl2	position.ml	/^let test_calc_pl2 =$/;"	v
+test_calc_pl3	position.ml	/^let test_calc_pl3 =$/;"	v
+test_calc_vwap103	position.ml	/^let test_calc_vwap103 = (calc_vwap sample5 trd2) = Some 98.80$/;"	v
+test_calc_vwap104	position.ml	/^let test_calc_vwap104 = (calc_vwap sample5 trd1) = Some 98.82$/;"	v
+test_calc_vwap105	position.ml	/^let test_calc_vwap105 = (calc_vwap sample5 trd4) = Some 98.78 (* not trd3 *)$/;"	v
+test_calc_vwap106	position.ml	/^let test_calc_vwap106 = (calc_vwap sample6 trd2) = (*同一符号取引*) $/;"	v
+test_calc_vwap107	position.ml	/^let test_calc_vwap107 = (calc_vwap sample6 trd1) = (*異符号取引: pos符号不変 *)$/;"	v
+test_calc_vwap108	position.ml	/^let test_calc_vwap108 = (calc_vwap sample6 trd4) = (*異符号取引: pos符号変化 *)$/;"	v
+test_calc_vwap2	position.ml	/^let test_calc_vwap2 = (calc_vwap sample1 trd2) = Some 98.80$/;"	v
+test_calc_vwap3	position.ml	/^let test_calc_vwap3 = (calc_vwap sample3 trd1) = Some 98.82$/;"	v
+test_calc_vwap4	position.ml	/^let test_calc_vwap4 = (calc_vwap sample3 trd2) = Some 98.80$/;"	v
+test_calc_vwap5	position.ml	/^let test_calc_vwap5 = (calc_vwap sample3 trd3) = Some 98.78$/;"	v
+test_calc_vwap6	position.ml	/^let test_calc_vwap6 = (calc_vwap sample4 trd1) = (*同一符号取引*) $/;"	v
+test_calc_vwap7	position.ml	/^let test_calc_vwap7 = (calc_vwap sample4 trd2) = (*異符号取引: pos符号不変 *)$/;"	v
+test_calc_vwap8	position.ml	/^let test_calc_vwap8 = (calc_vwap sample4 trd3) = (*異符号取引: pos符号変化 *)$/;"	v
+test_result	trade.ml	/^let test_result = ref [];;$/;"	v
+test_save_and_load	sample_generation.ml	/^let test_save_and_load = Array.for_all2 (fun x y -> x = y) prices price_loaded;;$/;"	v
+test_save_and_load	sample_generation.ml	/^let test_save_and_load = Array.for_all2 (fun x y -> x = y) trades trade_loaded;;$/;"	v
+test_set_price1	trade.ml	/^let test_set_price1 =$/;"	v
+tests	item.ml	/^let tests = [test11;test2;test1]$/;"	v
+time1	trade.ml	/^let time1 = Time.make 22 0 1$/;"	v
+time_	position.ml	/^  mutable time_:	Time.t ;$/;"	r	type:t
+time_	price.ml	/^  time_:    CalendarLib.Time.t;$/;"	r	type:t
+time_	trade.ml	/^   time_:	Time.t option;$/;"	r	type:t
+time_of_string	iocommon.ml	/^let time_of_string s = (* s = "hh:mm:ss" *)$/;"	v
+to_bs_code	buysell.ml	/^ let to_bs_code = function$/;"	v
+to_bs_type	buysell.ml	/^ let to_bs_type = function$/;"	v
+to_int	item.ml	/^ let to_int = function$/;"	v
+to_lot_sign	buysell.ml	/^ let to_lot_sign = function$/;"	v
+to_string	counterparty.ml	/^let to_string = function {name_=name} -> name$/;"	v
+to_string	item.ml	/^ let to_string = function$/;"	v
+to_string	position.ml	/^let to_string ?(crlf=true) $/;"	v
+to_string	price.ml	/^let to_string ?(crlf=true) $/;"	v
+to_string	simulate.ml	/^let to_string $/;"	v
+to_string	trade.ml	/^let to_string ?(crlf=true) {seq_=seq; date_=date; time_=time; cpty_=cpty;$/;"	v
+trade1	test_simulate.ml	/^let trade1 = Trade.load_from_csv "trade_testdata1.csv";; $/;"	v
+trade101	temp_main.ml	/^let trade101 = $/;"	v
+trd101	position.ml	/^let trd101 = (Trade.make 1 date1 (Some time1) "dummy" 1 1000. 0 (Some 98.82));;$/;"	v
+trd_ofn	sample_generation.ml	/^let trd_ofn = read_line ();;$/;"	v
+vp	position.ml	/^  let vp = match sample4.vwap_ with Some x -> x | None -> assert false in $/;"	v
+vp	position.ml	/^  let vp = match sample6.vwap_ with Some x -> x | None -> assert false in $/;"	v
+vwap	position.ml	/^      let vwap = calc_vwap pos trd in$/;"	v
+vwap_	position.ml	/^  mutable vwap_:	float option ;$/;"	r	type:t
