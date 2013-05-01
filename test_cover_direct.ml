@@ -27,8 +27,9 @@ Hashtbl.iter (fun x y -> print_string (Trade.to_string y)) cover_hash;;
 print_string "cover_trd_list\n";;
 Trade.from_array_to_string (Array.of_list cover_trades);;
 
-print_string "direct cover simulation \n";; 
-let sample_simulate1 = Simulate.simulate ~delay:delay (Position.init Item.USD Item.JPY) cpr hpr trades;;
+print_string "\n\n\n\ndirect cover simulation \n";; 
+let (sample_simulate1, cover) = Simulate.simulate ~delay:delay (Position.init Item.USD Item.JPY) cpr hpr trades;;
 print_string "position\n";;
 print_string (Simulate.to_string sample_simulate1);;
- 
+print_string "cover trades\n";;
+print_string (Trade.from_array_to_string (Array.rev(Array.of_list(cover))));;

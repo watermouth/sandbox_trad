@@ -20,11 +20,9 @@ let direct_cover (idx:int) info trd_list cvtrd_list cover_hash =
     let execution_time = 
       (Time.add (info.Availableinfo.pos_.(idx).Position.time_) (Time.Period.second info.Availableinfo.delay_))
     in
-    Printf.printf "execution_time:%d\n" (Time.to_seconds execution_time);
     (* cover trade *)
     let cv = (Trade.make h.seq_ h.date_ (Some execution_time) "cover"
                 (Item.to_int (h.item1_)) (~-. (h.lot1_)) (Item.to_int (h.item2_)) None) in
-    print_string (Trade.to_string cv);
     Hashtbl.add cover_hash execution_time cv;
     sub t (cv :: result)
   in (sub trd_list [], cover_hash)
@@ -59,6 +57,7 @@ let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t
     h) in
   (* I think number of cover trades is at most nrow_trd *)
   let cover_hash = Hashtbl.create nrow_trd in 
+  let cover_result = ref [] in 
   (* latent pl, total pl *)
   for i=0 to (nrow_mkt - 1) do
     (* cpr.(i)を認識する時点での情報を取得する *)
@@ -73,11 +72,12 @@ let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t
     p := Position.add_trade_list !p trades;
     (* make cover *)
     let (covers_made, cover_hash) = cover_rule i (info) trades covers cover_hash in 
+    cover_result := (List.append covers_made !cover_result);
     (* delay = 0 is exceptional case *)
     p := if delay != 0 then !p 
          else 
            (let covers_made = List.map (fun trd -> Tradehandler.set_baprice trd mkt) covers_made in
-           print_string (Trade.from_array_to_string (Array.of_list covers_made));
+           (* print_string (Trade.from_array_to_string (Array.of_list covers_made));*)
            (Position.add_trade_list !p covers_made));
     (* value *)
     pos_hist.(i) <- !p;
@@ -85,10 +85,13 @@ let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t
     lpl.(i) <- llpl; tpl.(i) <- ttpl; 
     bid.(i) <- mkt.Price.bid_;
     ask.(i) <- mkt.Price.ask_;
+    h_bid.(i) <- hpr.(i).Price.bid_;
+    h_ask.(i) <- hpr.(i).Price.ask_;
     ()
   done;
-  {nrow_=nrow_mkt;pos_hist_=pos_hist; pl_latent_=lpl; pl_total_=tpl;
-   bid_=bid; ask_=ask; h_bid_=h_bid; h_ask_=h_ask}
+  ({nrow_=nrow_mkt;pos_hist_=pos_hist; pl_latent_=lpl; pl_total_=tpl;
+   bid_=bid; ask_=ask; h_bid_=h_bid; h_ask_=h_ask},
+   (!cover_result))
  
 let to_string 
   {nrow_=nrow; pos_hist_=pos_hist; pl_latent_=lpl; pl_total_=tpl;
