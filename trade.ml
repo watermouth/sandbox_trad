@@ -86,7 +86,40 @@ let test_result = ref [];;
 let date1 = Date.make 2013 4 22 
 let time1 = Time.make 22 0 1
 let sample1 = make 1 date1 (Some time1) "dummy" 1 10000. 0 (Some 94.325)
-let make_samples ?mode:(flg:bool=true) num =
+let make_samples ?mode:(flg:bool=true) ?(hpr=Array.create 1 Price.sample1) num =
+  (* cannot set seed... Random.init 8888; *)
+  (* sample times *)
+  let seconds = Array.map
+    (fun x -> x + (int_of_float (Rmath.rexp ~rate:1.0 ()))) (Array.create num 0) in
+  for i=1 to (num-1) do
+    seconds.(i) <- seconds.(i) + seconds.(i-1)
+  done;
+  Array.iter (fun x-> Printf.printf "%d\n" x) seconds;
+  let times = let time_begin = hpr.(0).Price.time_ in 
+    Batteries.Array.filter_map 
+    (fun x -> if x <= 86400 then Some (Time.add time_begin (Time.Period.second x)) else None ) seconds in 
+  (* reset num *) 
+  let num = Array.length times in  
+  (* set bid or ask and prices *)
+  (* buy:1, sell:-1 *) 
+  let signs = Array.init num (fun i -> if Random.bool () then 1 else ~-1) in 
+  (* make hashtable *)
+  let hpr_hash = Hashtbl.create num in
+  (Array.iter (fun x -> Hashtbl.add hpr_hash x.Price.time_ x) hpr);
+  let prices = Array.init num 
+    (fun i -> match Hashtbl.find hpr_hash times.(i) with 
+              | pr -> if signs.(i) > 0 then pr.Price.ask_ else pr.Price.bid_ ) in 
+  if (flg) then
+    Array.init num
+      (fun i -> make i date1 (Some times.(i))
+              "dummy" 1 ((float_of_int signs.(i)) *. 1000. *. (Rmath.rpois 10.)) 0
+              (Some prices.(i))) 
+  else
+    (Array.init num
+    (fun i -> make (i+num) date1 None "dummy" 1 10000. 0 None) 
+    );;
+
+let make_samples_01 ?mode:(flg:bool=true) num =
   Random.init 8888;
   if (flg) then
     Array.init num
