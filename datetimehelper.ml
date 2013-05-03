@@ -1,5 +1,6 @@
-(* IO common *)
+(* date time helper *)
 open CalendarLib
+(* string -> Date.t *)
 let date_of_string s = (* s = "yyyy-mm-dd" *)
   let lst = Str.split (Str.regexp_string "-") s in
   let lstInt = List.map (fun x -> int_of_string x) lst in
@@ -10,6 +11,7 @@ let date_of_string s = (* s = "yyyy-mm-dd" *)
 let test1 = date_of_string "2012-11-12" = (Date.make 2012 11 12)
 let test2 = date_of_string "2013-02-07" = (Date.make 2013 2 7)
 
+(* string -> Time.t *)
 let time_of_string s = (* s = "hh:mm:ss" *)
   let lst = Str.split (Str.regexp_string ":") s in
   let lstInt = List.map (fun x -> int_of_string x) lst in
@@ -19,6 +21,9 @@ let time_of_string s = (* s = "hh:mm:ss" *)
 (* test *)
 let test1 = time_of_string "7:00:00" = (Time.make 7 0 0)
 let test2 = time_of_string "18:32:04" = (Time.make 18 32 4)
+
+(* Time.t -> int -> Time.t *)
+let add_second time second = (Time.add time (Time.Period.second second))
 
 
  

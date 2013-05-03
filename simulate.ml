@@ -11,18 +11,18 @@ type t = {
   h_ask_:	float array;
 }
 
-(* cover rule: straight *)
+(* cover rule: direct *)
 let direct_cover (idx:int) info pos trd_list cvtrd_list cover_hash = 
   let open Trade in
+  let seq = ref pos.Position.seq_ in
   let rec sub trades result = match trades with
   | [] -> result
   | h::t -> 
-    let execution_time = 
-      (Time.add (pos.Position.time_) (Time.Period.second info.Availableinfo.delay_))
-    in
+    let execution_time = Datetimehelper.add_second (pos.Position.time_) info.Availableinfo.delay_ in
     (* cover trade *)
-    let cv = (Trade.make h.seq_ h.date_ (Some execution_time) "cover"
-                (Item.to_int (h.item1_)) (~-. (h.lot1_)) (Item.to_int (h.item2_)) None) in
+    seq := !seq + 1;
+    let cv = (Trade.make (!seq) (pos.Position.date_) (Some execution_time) "cover"
+                (Item.to_int (pos.Position.item1_)) (~-. (h.lot1_)) (Item.to_int (pos.Position.item2_)) None) in
     Hashtbl.add cover_hash execution_time cv;
     sub t (cv :: result)
   in (sub trd_list [], cover_hash)
@@ -34,10 +34,6 @@ let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t
   let nrow_mkt = Array.length cpr in
   let nrow_trd = Array.length trades in
   let pos_hist = Array.make nrow_mkt (Position.copy pos) in 
-  (*  Array.map
-      (fun y -> let x = (Position.copy pos) in 
-              x.Position.date_ <- y.Price.date_;
-              x.Position.time_ <- y.Price.time_;x) cpr in *)
   let lpl = Array.create nrow_mkt 0.0 in 
   let tpl = Array.create nrow_mkt 0.0 in 
   let bid = Array.create nrow_mkt 0.0 in 

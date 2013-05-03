@@ -80,7 +80,7 @@ BYTE_ENABLED = $(OCAMLOPT_EXISTS))
 #
 
 FILES[] =
-  iocommon
+  datetimehelper
   buysell
   item
   counterparty
@@ -90,6 +90,7 @@ FILES[] =
   position
   availableinfo
   simulate
+  coverlotlimit
 #    file1
 #    file2
 #

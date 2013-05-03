@@ -7,7 +7,7 @@ open CalendarLib
 module T = Trade 
  
 type t = {
-  mutable seq_:		int ;
+  mutable seq_:		int ; (* can be used as added number of trades *)
   mutable date_:	Date.t ;
   mutable time_:	Time.t ;
   item1_:		Item.t ;

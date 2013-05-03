@@ -29,7 +29,7 @@ let to_string ?(crlf=true)
 let header = "seq, date, time, item1, item2, bid, mid, ask"
 
 let of_string_array s (* data as string array *) = 
-  make (int_of_string s.(0)) (Iocommon.date_of_string s.(1)) (Iocommon.time_of_string s.(2))
+  make (int_of_string s.(0)) (Datetimehelper.date_of_string s.(1)) (Datetimehelper.time_of_string s.(2))
        (int_of_string s.(3)) (int_of_string s.(4)) 
        (float_of_string s.(5)) (float_of_string s.(6)) (float_of_string s.(7)) 
 

@@ -18,7 +18,14 @@ let price101 =
 let p = Position.init Item.USD Item.JPY;;
 print_string "input delay: ";;
 let delay = int_of_string (read_line ());;
-let (result,covers) = Simulate.simulate ~delay:delay p price101 price101 trade101;;
+print_string "input cover rule\n direct:1, lotlimit:2\n";;
+let cover_rule = match (int_of_string (read_line ())) with
+  | 1 -> Simulate.direct_cover
+  | 2 -> Coverlotlimit.get ~lot_limit:10000.0 ~lot_left:0.0
+  | _ -> raise Not_found
+;;
+
+let (result,covers) = Simulate.simulate ~cover_rule:cover_rule ~delay:delay p price101 price101 trade101;;
 let fn_out_tail = ".csv";;
 (* output csv files *)
 Trade.to_csv ~name:(fn_trade ^ fn_id ^ fn_out_tail) trade101;;

@@ -34,8 +34,8 @@ let header = "seq,date,time,item1,lot1,item2,lot2,price"
 let of_string_array s = 
   let lot1 = float_of_string s.(5) in
   let price = float_of_string s.(8) in 
-  {seq_=(int_of_string s.(0));date_=(Iocommon.date_of_string s.(1));
-   time_=Some (Iocommon.time_of_string (s.(2)));
+  {seq_=(int_of_string s.(0));date_=(Datetimehelper.date_of_string s.(1));
+   time_=Some (Datetimehelper.time_of_string (s.(2)));
    cpty_=(Some (Counterparty.make s.(3)));
    item1_=(Item.make (int_of_string s.(4))); lot1_=lot1;
    item2_=(Item.make (int_of_string s.(6))); lot2_= Some (price *. ~-.lot1);
