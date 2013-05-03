@@ -14,14 +14,12 @@ type t = {
 (* cover rule: direct *)
 let direct_cover (idx:int) info pos trd_list cvtrd_list cover_hash = 
   let open Trade in
-  let seq = ref pos.Position.seq_ in
   let rec sub trades result = match trades with
   | [] -> result
   | h::t -> 
     let execution_time = Datetimehelper.add_second (pos.Position.time_) info.Availableinfo.delay_ in
     (* cover trade *)
-    seq := !seq + 1;
-    let cv = (Trade.make (!seq) (pos.Position.date_) (Some execution_time) "cover"
+    let cv = (Trade.make (pos.Position.seq_) (pos.Position.date_) (Some execution_time) "cover"
                 (Item.to_int (pos.Position.item1_)) (~-. (h.lot1_)) (Item.to_int (pos.Position.item2_)) None) in
     Hashtbl.add cover_hash execution_time cv;
     sub t (cv :: result)
