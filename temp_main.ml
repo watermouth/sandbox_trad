@@ -3,13 +3,17 @@
 let fn_id = Sys.argv.(1);; (* data id *) 
 let delay = int_of_string (Sys.argv.(2));;
 let rule_number = int_of_string (Sys.argv.(3));;
+Printf.printf "delay:%d,rule:%d," delay rule_number
 let cover_rule = match (rule_number) with
   | 1 -> Simulate.direct_cover
-  | 2 -> Coverlotlimit.get ~lot_limit:(float_of_string Sys.argv.(4)) ~lot_left:(float_of_string Sys.argv.(5))
+  | 2 -> let lot_limit = (float_of_string Sys.argv.(4)) in
+         let lot_left  = (float_of_string Sys.argv.(5)) in
+    Printf.printf "limit:%7.0f,left:%7.0f," lot_limit lot_left;
+    Coverlotlimit.get ~lot_limit:lot_limit ~lot_left:lot_left
   | _ -> raise Not_found
 ;;
-Printf.printf "input delay:%d\n" delay;;
-Printf.printf "input cover rule: %d\n direct:1, lotlimit:2\n" rule_number ;;
+Printf.printf "pl:"
+(* Printf.printf "input cover rule: %d\n direct:1, lotlimit:2\n" rule_number ;;*)
 
 (* load data *)
 let fn_in_tail = ".dat";;

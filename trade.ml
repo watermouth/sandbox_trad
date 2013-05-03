@@ -83,14 +83,14 @@ let from_array_to_string a =
   let s = Array.fold_left (fun x y -> x ^ (to_string y)) "" a in
   (s)
 
-
-(* test *)
 ;;
+(* 
+(* test *)
 Time_Zone.change Time_Zone.Local
 let test_result = ref [];;
 let date1 = Date.make 2013 4 22 
 let time1 = Time.make 22 0 1
-let sample1 = make 1 date1 (Some time1) "dummy" 1 10000. 0 (Some 94.325)
+
 let make_samples ?mode:(flg:bool=true) ?(hpr=Array.create 1 Price.sample1) ?(interval=10.0) num =
   (* cannot set seed... Random.init 8888; *)
   (* sample times *)
@@ -135,6 +135,7 @@ let make_samples_01 ?mode:(flg:bool=true) num =
     (fun i -> make (i+num) date1 None "dummy" 1 10000. 0 None) 
     );;
 
+let sample1 = make 1 date1 (Some time1) "dummy" 1 10000. 0 (Some 94.325)
 let test1 = sample1 = {seq_=1;date_=date1;time_=(Some time1);cpty_=(Some (Counterparty.make "dummy"));
                        item1_=(Item.make 1); lot1_=10000.0;
                        item2_=(Item.make 0); lot2_=(Some (~-. 94.325 *. 10000.0));
@@ -149,4 +150,5 @@ Printf.printf "Trade test result: %b\n" (List.for_all (fun x -> x) !test_result)
 
 let time2 = Time.make 0 0 25200;;
 let sample2 = make 1000 date1 (Some time2) "dummy2" 1 10000. 0 None;;
+*)
 

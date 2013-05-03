@@ -50,7 +50,7 @@ let load_from_csv filename =
   
   (* let a_header = Str.split (Str.regexp_string ",") header in *) (* botu *)
   (* let Csv.associate a_header dc *)
-
+(* 
 (* test *)
 ;;
 CalendarLib.Time_Zone.change CalendarLib.Time_Zone.Local
@@ -86,3 +86,4 @@ let make_samples_old ?(item1_code=1) ?(item2_code=0) num =
 from_array_to_string (make_samples 10);;
 
 Printf.printf "Price test result:nothing\n";;
+*)

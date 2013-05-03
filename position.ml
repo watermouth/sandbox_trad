@@ -102,11 +102,10 @@ let to_string ?(crlf=true)
 let from_array_to_string a = 
   let s = Array.fold_left (fun x y -> x ^ (to_string y)) "" a in
   (s)
-
-let from_array_to_csv a = ""
-
 ;;
 
+(*
+(* test *)
 (* sample *)
 let date1 = Date.make 2013 4 23;;
 let time1 = Time.make 8 30 30;;
@@ -142,7 +141,7 @@ let sample6 =
 to_string sample1;;
 to_string sample2;;
 
-(* test *)
+(* test body *)
 let test_result = ref [];;
 (* test calc_vwap *)
 (* Position lot = 0: ポジション無しに加算 *)
@@ -226,3 +225,5 @@ test_result := test_calc_vwap1 :: test_calc_vwap2 :: test_calc_vwap3 :: test_cal
   test_calc_pl1 :: test_calc_pl2 :: test_calc_pl3 :: !test_result;;
 
 Printf.printf "Position test result: %b\n" (List.for_all (fun x -> x) !test_result)
+*)
+
