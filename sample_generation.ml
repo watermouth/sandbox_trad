@@ -13,34 +13,42 @@ print_string (Price.from_array_to_string cp);;
 (* sample trades *)
 print_string "sample output file name:\n";;
 let trd_ofn = read_line ();;
-output_file (trd_ofn) (Trade.from_array_to_string (Trade.make_samples num ~hpr:cp));;
+output_file (trd_ofn) (Trade.from_array_to_string (Trade.make_samples num ~hpr:cp ~interval:1.0 ));;
 
 (* binary format data generation *)
+let fn_id = "101";;
+let fn_tail = ".dat";;
+let fn_trade = "tdtr";;
+let fn_price = "tdpr";;
+let fn_simulate = "tdsm";;
+let fn_cover = "tdcv";;
+
 (* price *)
 let prices = Price.make_samples 86400;;
-let ob = open_out_bin "price_testdata100.dat" in
+let ob = open_out_bin (fn_price ^ fn_id ^ fn_tail) in
   output_value ob prices;
   close_out ob;;
 
 (* how to load *)
 let price_loaded =
-  let ib = open_in_bin "price_testdata100.dat" in
+  let ib = open_in_bin (fn_price ^ fn_id ^ fn_tail) in
   let v : Price.t array = (input_value ib) in
-  v
+  close_in ib; v
 
 (* test *)
 let test_save_and_load = Array.for_all2 (fun x y -> x = y) prices price_loaded;;
 
 (* trade *)
-let trades = Trade.make_samples 3000 ~hpr:prices ;;
-let ob = open_out_bin "trade_testdata100.dat";;
+let trades = Trade.make_samples 30000 ~hpr:prices ;;
+let ob = open_out_bin (fn_trade ^ fn_id ^ fn_tail);; 
 output_value ob trades;;
 close_out ob;;
 
 (* how to load *)
 let trade_loaded = 
-  let ib = open_in_bin "trade_testdata100.dat" in
+  let ib = open_in_bin (fn_trade ^ fn_id ^ fn_tail) in
   let v : Trade.t array = (input_value ib) in
+  close_in ib;
   v
 
 (* test *)

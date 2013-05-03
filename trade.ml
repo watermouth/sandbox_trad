@@ -68,6 +68,11 @@ let to_string ?(crlf=true) {seq_=seq; date_=date; time_=time; cpty_=cpty;
    in 
    if crlf then s ^ "\n" else s 
 
+let to_csv ~name a =
+  let oc = open_out name in
+  Array.iter (fun x -> output_string oc (to_string x)) a;
+  close_out oc
+
 let load_from_csv fn =
   let dc = Csv.load fn in
   let da = Csv.to_array dc in
@@ -86,15 +91,15 @@ let test_result = ref [];;
 let date1 = Date.make 2013 4 22 
 let time1 = Time.make 22 0 1
 let sample1 = make 1 date1 (Some time1) "dummy" 1 10000. 0 (Some 94.325)
-let make_samples ?mode:(flg:bool=true) ?(hpr=Array.create 1 Price.sample1) num =
+let make_samples ?mode:(flg:bool=true) ?(hpr=Array.create 1 Price.sample1) ?(interval=10.0) num =
   (* cannot set seed... Random.init 8888; *)
   (* sample times *)
   let seconds = Array.map
-    (fun x -> x + (int_of_float (Rmath.rexp ~rate:1.0 ()))) (Array.create num 0) in
+    (fun x -> x + (int_of_float (Rmath.rexp ~rate:interval ()))) (Array.create num 0) in
   for i=1 to (num-1) do
     seconds.(i) <- seconds.(i) + seconds.(i-1)
   done;
-  Array.iter (fun x-> Printf.printf "%d\n" x) seconds;
+  (* Array.iter (fun x-> Printf.printf "%d\n" x) seconds; *)
   let times = let time_begin = hpr.(0).Price.time_ in 
     Batteries.Array.filter_map 
     (fun x -> if x <= 86400 then Some (Time.add time_begin (Time.Period.second x)) else None ) seconds in 

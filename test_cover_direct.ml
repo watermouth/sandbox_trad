@@ -14,7 +14,8 @@ let pos_hist = Array.map
 let info = let open Availableinfo in
   {pos_=pos_hist;cpr_=cpr;hpr_=hpr;delay_=delay};;
 let cover_hash = Hashtbl.create nrow_trd;;
-let (cover_trades, cover_hash) = Simulate.direct_cover 0 info (Array.to_list (Array.sub trades 0 1)) [] cover_hash;;
+let (cover_trades, cover_hash) = Simulate.direct_cover 0 info pos 
+                                   (Array.to_list (Array.sub trades 0 1)) [] cover_hash;;
 print_string "cpr, hpr \n";;
 print_string (Price.from_array_to_string cpr);;
 print_string (Price.from_array_to_string hpr);;

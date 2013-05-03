@@ -37,6 +37,12 @@ let from_array_to_string a =
   let s = Array.fold_left (fun x y -> x ^ (to_string y) ) "" a in
   (s)
 
+let to_csv ~name a =
+  let oo = open_out name in
+  Array.iter (fun x -> output_string oo (to_string x)) a;
+  close_out oo;
+  ()
+
 let load_from_csv filename =
   let dc = Csv.load filename in
   let da = Csv.to_array dc in

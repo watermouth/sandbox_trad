@@ -12,13 +12,13 @@ type t = {
 }
 
 (* cover rule: straight *)
-let direct_cover (idx:int) info trd_list cvtrd_list cover_hash = 
+let direct_cover (idx:int) info pos trd_list cvtrd_list cover_hash = 
   let open Trade in
   let rec sub trades result = match trades with
   | [] -> result
   | h::t -> 
     let execution_time = 
-      (Time.add (info.Availableinfo.pos_.(idx).Position.time_) (Time.Period.second info.Availableinfo.delay_))
+      (Time.add (pos.Position.time_) (Time.Period.second info.Availableinfo.delay_))
     in
     (* cover trade *)
     let cv = (Trade.make h.seq_ h.date_ (Some execution_time) "cover"
@@ -30,14 +30,14 @@ let direct_cover (idx:int) info trd_list cvtrd_list cover_hash =
 (* market rate を順次処理してsimulate する *)
 (* simulate *)
 let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t array) =
-  let p = ref pos in
   (* simulation steps are specified by cpr *)
   let nrow_mkt = Array.length cpr in
   let nrow_trd = Array.length trades in
-  let pos_hist = Array.map
+  let pos_hist = Array.make nrow_mkt (Position.copy pos) in 
+  (*  Array.map
       (fun y -> let x = (Position.copy pos) in 
               x.Position.date_ <- y.Price.date_;
-              x.Position.time_ <- y.Price.time_;x) cpr in
+              x.Position.time_ <- y.Price.time_;x) cpr in *)
   let lpl = Array.create nrow_mkt 0.0 in 
   let tpl = Array.create nrow_mkt 0.0 in 
   let bid = Array.create nrow_mkt 0.0 in 
@@ -58,7 +58,9 @@ let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t
   (* I think number of cover trades is at most nrow_trd *)
   let cover_hash = Hashtbl.create nrow_trd in 
   let cover_result = ref [] in 
-  (* latent pl, total pl *)
+  (* position state variable *)
+  let p = ref pos in
+  !p.Position.date_ <- cpr.(0).Price.date_;
   for i=0 to (nrow_mkt - 1) do
     (* cpr.(i)を認識する時点での情報を取得する *)
     let mkt = cpr.(i) in
@@ -68,10 +70,11 @@ let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t
     (* set price to cover trades *)
     let covers = List.map (fun trd -> Tradehandler.set_baprice trd mkt) covers in
     (* update *)
+    !p.Position.time_ <- time; 
     p := Position.add_trade_list !p covers;
     p := Position.add_trade_list !p trades;
     (* make cover *)
-    let (covers_made, cover_hash) = cover_rule i (info) trades covers cover_hash in 
+    let (covers_made, cover_hash) = cover_rule i (info) !p trades covers cover_hash in 
     cover_result := (List.append covers_made !cover_result);
     (* delay = 0 is exceptional case *)
     p := if delay != 0 then !p 
@@ -79,9 +82,10 @@ let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t
            (let covers_made = List.map (fun trd -> Tradehandler.set_baprice trd mkt) covers_made in
            (* print_string (Trade.from_array_to_string (Array.of_list covers_made));*)
            (Position.add_trade_list !p covers_made));
-    (* value *)
-    pos_hist.(i) <- !p;
+    (* latent pl, total pl *)
     let (_, llpl, ttpl) = (Position.calc_pl !p mkt.Price.mid_) in
+    (* record *)
+    pos_hist.(i) <- Position.copy (!p); (* COPY !! *)
     lpl.(i) <- llpl; tpl.(i) <- ttpl; 
     bid.(i) <- mkt.Price.bid_;
     ask.(i) <- mkt.Price.ask_;
@@ -104,6 +108,17 @@ let to_string
    done;
    !s
 
+let to_csv ~name 
+  {nrow_=nrow; pos_hist_=pos_hist; pl_latent_=lpl; pl_total_=tpl;
+   bid_=bid; ask_=ask; h_bid_=h_bid; h_ask_=h_ask} =
+   let oc = open_out name in
+   for i=0 to (nrow-1) do
+     output_string oc
+       (Printf.sprintf "%s,%10.2f,%10.2f,%7.5f,%7.5f,%7.5f,%7.5f\n"
+           (Position.to_string ~crlf:false pos_hist.(i))
+           lpl.(i) tpl.(i) bid.(i) ask.(i) h_bid.(i) h_ask.(i))
+   done;
+   close_out oc 
     
 
 (* cover *) 
