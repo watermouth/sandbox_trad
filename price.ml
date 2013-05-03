@@ -51,6 +51,7 @@ let load_from_csv filename =
   (* let a_header = Str.split (Str.regexp_string ",") header in *) (* botu *)
   (* let Csv.associate a_header dc *)
 (* 
+*)
 (* test *)
 ;;
 CalendarLib.Time_Zone.change CalendarLib.Time_Zone.Local
@@ -64,6 +65,20 @@ let sample1 = make 0 date1 time1 1 0 (*USDJPY*) sample_bid sample_mid sample_ask
 to_string sample1;;
 
 let make_samples ?(item1_code=1) ?(item2_code=0) num =
+  let mid = ref sample_mid in
+  let mid_array = Array.init num (fun i -> 
+                                   (mid := (!mid +. (Rmath.rnorm ~mean:0.0 ~sd:0.01 () ));
+                                    !mid)) in
+  (* Random.init 8888;  seed cannot be set *)
+  Array.init num 
+  (fun i -> 
+    let b = mid_array.(i) -. (Rmath.rnorm ~mean:0.0 ~sd:0.0001 () ) in 
+    let a = mid_array.(i) +. (Rmath.rnorm ~mean:0.0 ~sd:0.0001 () ) in 
+    make i date1 (Time.add time1 (Time.Period.second i)) item1_code item2_code
+    b ((b +. a) /. 2.) a
+  );;
+
+let make_samples_2 ?(item1_code=1) ?(item2_code=0) num =
   (* Random.init 8888;  seed cannot be set *)
   Array.init num 
   (fun i -> 
@@ -73,7 +88,7 @@ let make_samples ?(item1_code=1) ?(item2_code=0) num =
     b ((b +. a) /. 2.) a
   );;
 
-let make_samples_old ?(item1_code=1) ?(item2_code=0) num =
+let make_samples_1 ?(item1_code=1) ?(item2_code=0) num =
   Random.init 8888;
   Array.init num 
   (fun i -> let diff = Random.float 0.001 in
@@ -86,4 +101,5 @@ let make_samples_old ?(item1_code=1) ?(item2_code=0) num =
 from_array_to_string (make_samples 10);;
 
 Printf.printf "Price test result:nothing\n";;
+(*
 *)

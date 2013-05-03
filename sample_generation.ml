@@ -16,7 +16,8 @@ let trd_ofn = read_line ();;
 output_file (trd_ofn) (Trade.from_array_to_string (Trade.make_samples num ~hpr:cp ~interval:1.0 ));;
 
 (* binary format data generation *)
-let fn_id = "101";;
+Printf.printf "input data id(:positive integer) :";;
+let fn_id = (read_line());;
 let fn_tail = ".dat";;
 let fn_trade = "tdtr";;
 let fn_price = "tdpr";;
