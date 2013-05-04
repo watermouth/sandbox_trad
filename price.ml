@@ -50,9 +50,6 @@ let load_from_csv filename =
   
   (* let a_header = Str.split (Str.regexp_string ",") header in *) (* botu *)
   (* let Csv.associate a_header dc *)
-(* 
-*)
-(* test *)
 ;;
 CalendarLib.Time_Zone.change CalendarLib.Time_Zone.Local
 let date1 = CalendarLib.Date.make 2013 4 22 
@@ -65,17 +62,20 @@ let sample1 = make 0 date1 time1 1 0 (*USDJPY*) sample_bid sample_mid sample_ask
 to_string sample1;;
 
 let make_samples ?(item1_code=1) ?(item2_code=0) num =
-  let mid = ref sample_mid in
-  let mid_array = Array.init num (fun i -> 
-                                   (mid := (!mid +. (Rmath.rnorm ~mean:0.0 ~sd:0.01 () ));
-                                    !mid)) in
+  let mid_array = Array.make num sample_mid in
+  for i=1 to (num-1) do
+    mid_array.(i) <- mid_array.(i-1) +. (Rmath.rnorm ~mean:0.0 ~sd:0.01 ())
+                     +. (if Random.bool () then 1.0 else ~-.1.0) *. 0.01 *. (Rmath.rpois 0.1) ;
+  done;
   (* Random.init 8888;  seed cannot be set *)
   Array.init num 
   (fun i -> 
-    let b = mid_array.(i) -. (Rmath.rnorm ~mean:0.0 ~sd:0.0001 () ) in 
-    let a = mid_array.(i) +. (Rmath.rnorm ~mean:0.0 ~sd:0.0001 () ) in 
+    let b = mid_array.(i) -. (Rmath.rnorm ~mean:0.01 ~sd:0.0001 () ) in 
+    let a = mid_array.(i) +. (Rmath.rnorm ~mean:0.01 ~sd:0.0001 () ) in 
     make i date1 (Time.add time1 (Time.Period.second i)) item1_code item2_code
-    b ((b +. a) /. 2.) a
+    b 
+    ((b +. a) /. 2.)
+    a
   );;
 
 let make_samples_2 ?(item1_code=1) ?(item2_code=0) num =
@@ -98,8 +98,9 @@ let make_samples_1 ?(item1_code=1) ?(item2_code=0) num =
     b ((b +. a) /. 2.) a
   );;
 
+(* test *)
+(*
 from_array_to_string (make_samples 10);;
 
 Printf.printf "Price test result:nothing\n";;
-(*
 *)

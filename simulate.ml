@@ -87,8 +87,6 @@ let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t
     h_ask.(i) <- hpr.(i).Price.ask_;
     ()
   done;
-  (* print pv *)
-  Printf.printf "%f\n" tpl.(nrow_mkt-1);
   ({nrow_=nrow_mkt;pos_hist_=pos_hist; pl_latent_=lpl; pl_total_=tpl;
    bid_=bid; ask_=ask; h_bid_=h_bid; h_ask_=h_ask},
    (!cover_result))

@@ -84,14 +84,12 @@ let from_array_to_string a =
   (s)
 
 ;;
-(* 
-(* test *)
-Time_Zone.change Time_Zone.Local
-let test_result = ref [];;
+Time_Zone.change Time_Zone.Local;;
 let date1 = Date.make 2013 4 22 
 let time1 = Time.make 22 0 1
 
-let make_samples ?mode:(flg:bool=true) ?(hpr=Array.create 1 Price.sample1) ?(interval=10.0) num =
+let make_samples ?mode:(flg:bool=true) ?(hpr=Array.create 1 Price.sample1) ?(interval=10.0) 
+    ?(lambda=10.0) ?(bias=0.5) num =
   (* cannot set seed... Random.init 8888; *)
   (* sample times *)
   let seconds = Array.map
@@ -99,15 +97,19 @@ let make_samples ?mode:(flg:bool=true) ?(hpr=Array.create 1 Price.sample1) ?(int
   for i=1 to (num-1) do
     seconds.(i) <- seconds.(i) + seconds.(i-1)
   done;
+  Batteries.Array.iteri (fun i x -> seconds.(i) <- seconds.(i) mod 86400) seconds;
   (* Array.iter (fun x-> Printf.printf "%d\n" x) seconds; *)
   let times = let time_begin = hpr.(0).Price.time_ in 
+    Array.map (fun x -> (Datetimehelper.add_second time_begin x)) seconds in 
+    (*
     Batteries.Array.filter_map 
     (fun x -> if x <= 86400 then Some (Time.add time_begin (Time.Period.second x)) else None ) seconds in 
+    *)
   (* reset num *) 
   let num = Array.length times in  
   (* set bid or ask and prices *)
   (* buy:1, sell:-1 *) 
-  let signs = Array.init num (fun i -> if Random.bool () then 1 else ~-1) in 
+  let signs = Array.init num (fun i -> if Random.float 1.0 < bias then 1 else ~-1) in 
   (* make hashtable *)
   let hpr_hash = Hashtbl.create num in
   (Array.iter (fun x -> Hashtbl.add hpr_hash x.Price.time_ x) hpr);
@@ -117,7 +119,7 @@ let make_samples ?mode:(flg:bool=true) ?(hpr=Array.create 1 Price.sample1) ?(int
   if (flg) then
     Array.init num
       (fun i -> make i date1 (Some times.(i))
-              "dummy" 1 ((float_of_int signs.(i)) *. 1000. *. (Rmath.rpois 10.)) 0
+              "dummy" 1 ((float_of_int signs.(i)) *. 1000. *. (Rmath.rpois lambda)) 0
               (Some prices.(i))) 
   else
     (Array.init num
@@ -135,6 +137,9 @@ let make_samples_01 ?mode:(flg:bool=true) num =
     (fun i -> make (i+num) date1 None "dummy" 1 10000. 0 None) 
     );;
 
+(*
+(*test*)
+let test_result = ref [];;
 let sample1 = make 1 date1 (Some time1) "dummy" 1 10000. 0 (Some 94.325)
 let test1 = sample1 = {seq_=1;date_=date1;time_=(Some time1);cpty_=(Some (Counterparty.make "dummy"));
                        item1_=(Item.make 1); lot1_=10000.0;
@@ -150,5 +155,6 @@ Printf.printf "Trade test result: %b\n" (List.for_all (fun x -> x) !test_result)
 
 let time2 = Time.make 0 0 25200;;
 let sample2 = make 1000 date1 (Some time2) "dummy2" 1 10000. 0 None;;
+(* *)
 *)
 
