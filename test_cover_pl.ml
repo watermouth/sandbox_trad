@@ -1,0 +1,35 @@
+(* pl cover test *)
+let pos = Position.init Item.USD Item.JPY;;
+let trades = Trade.load_from_csv "trade_testdata1.csv";; 
+let cpr = Price.load_from_csv "price_testdata1.csv";;
+let hpr = Price.load_from_csv "hprice_testdata1.csv";;
+print_string "input delay and enter\n";;
+let delay = int_of_string (read_line ());;
+let nrow_mkt = Array.length cpr ;;
+let nrow_trd = Array.length trades ;;
+let pos_hist = Array.map
+      (fun y -> let x = (Position.copy pos) in 
+              x.Position.date_ <- y.Price.date_;
+              x.Position.time_ <- y.Price.time_;x) cpr;; 
+let info = let open Availableinfo in
+  {pos_=pos_hist;cpr_=cpr;hpr_=hpr;delay_=delay};;
+let cover_hash = Hashtbl.create nrow_trd;;
+let cover_rule = Coverpl.get ~lot_limit:10000000.0 ~lot_left:0.0 ~pl_upper:7.8045 ~pl_lower:(~-. 1.1) ;;
+print_string "cpr, hpr \n";;
+print_string (Price.from_array_to_string cpr);;
+print_string (Price.from_array_to_string hpr);;
+print_string "initial position\n";;
+print_string (Position.from_array_to_string info.Availableinfo.pos_);;
+print_string "input trades\n";;
+print_string (Trade.from_array_to_string trades);;
+print_string "cover_hash\n";;
+Hashtbl.iter (fun x y -> print_string (Trade.to_string y)) cover_hash;;
+print_string "cover_trd_list\n";;
+Trade.from_array_to_string (Array.of_list cover_trades);;
+
+print_string "\n\n\n\ndirect cover simulation \n";; 
+let (sample_simulate1, cover) = Simulate.simulate ~delay:delay ~cover_rule:cover_rule (Position.init Item.USD Item.JPY) cpr hpr trades;;
+print_string "simulated result\n";;
+print_string (Simulate.to_string sample_simulate1);;
+print_string "cover trades\n";;
+print_string (Trade.from_array_to_string (Array.rev(Array.of_list(cover))));;

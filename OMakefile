@@ -88,9 +88,11 @@ FILES[] =
   price
   tradehandler
   position
+  positionhandler
   availableinfo
   simulate
   coverlotlimit
+  coverpl
 #    file1
 #    file2
 #

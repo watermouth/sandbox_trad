@@ -74,11 +74,19 @@ let add_trade_list pos trd_list =
   | h::t -> sub (add ~mode:false p h) t 
   in sub pos trd_list
 
+(* unit pl for open position *)
+let calc_unit_pl pos price = match pos.vwap_ with
+  | Some vwap -> 
+    if pos.lot1_ > 0.0 then price -. vwap else vwap -. price
+  | None -> ( assert (pos.lot1_ = 0.0); 0.0) (* lot1 is zero *)
+
 (* profit loss calculation *)
 (* 所与のposition と 評価時点のレートから PL を算出する *)
 let calc_pl pos price =
   let latent = (pos.lot1_ *. price) in
-  (pos.lot2_, latent, pos.lot2_ +. latent)
+  let unit_pl = (calc_unit_pl pos price) in
+  (unit_pl, unit_pl *. pos.lot1_, pos.lot2_ +. latent)
+
 
 let to_string ?(crlf=true) 
   {seq_=seq; date_=date; time_=time; 

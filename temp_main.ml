@@ -4,17 +4,23 @@ let do_output_csv = bool_of_string (Sys.argv.(1));;
 let fn_id = Sys.argv.(2);; (* data id *) 
 let delay = int_of_string (Sys.argv.(3));;
 let rule_number = int_of_string (Sys.argv.(4));;
-Printf.printf "delay:%d,rule:%d," delay rule_number
+let lot_limit =  ref 0.0;;
+let lot_left  =  ref 0.0;;
+let pl_upper  =  ref 0.0;;
+let pl_lower  =  ref 0.0;;
 let cover_rule = match (rule_number) with
   | 1 -> Simulate.direct_cover
-  | 2 -> let lot_limit = (float_of_string Sys.argv.(5)) in
-         let lot_left  = (float_of_string Sys.argv.(6)) in
-    Printf.printf "limit:%7.0f,left:%7.0f," lot_limit lot_left;
-    Coverlotlimit.get ~lot_limit:lot_limit ~lot_left:lot_left
+  | 2 -> lot_limit := (float_of_string Sys.argv.(5));
+         lot_left  := (float_of_string Sys.argv.(6));
+         Coverlotlimit.get ~lot_limit:!lot_limit ~lot_left:!lot_left
+  | 3 -> lot_limit := (float_of_string Sys.argv.(5));
+         lot_left  := (float_of_string Sys.argv.(6));
+         pl_upper  := (float_of_string Sys.argv.(7));
+         pl_lower  := (float_of_string Sys.argv.(8));
+         Coverpl.get ~lot_limit:!lot_limit ~lot_left:!lot_left ~pl_upper:!pl_upper ~pl_lower:!pl_lower  
   | _ -> raise Not_found
 ;;
-Printf.printf "pl:"
-(* Printf.printf "input cover rule: %d\n direct:1, lotlimit:2\n" rule_number ;;*)
+(* Printf.printf "input cover rule: %d\n direct:1, lotlimit:2\n" rule_number ;; *)
 
 (* load data *)
 let fn_in_tail = ".dat";;
@@ -39,7 +45,16 @@ let pl =
   let a = (result.Simulate.pl_total_) in
   let len = Array.length a in
   a.(len-1);;
-Printf.printf "%0.2f\n" pl;;
+(* output daily result *)
+let header = 
+  "data_id,delay,rule,pl,lot_limit,lot_left,pl_upper,pl_lower\n";; 
+let daily_result_string = match (rule_number) with
+  | 1 -> Printf.sprintf "%s,%d,%d,%0.2f,,,," fn_id delay rule_number pl 
+  | 2 -> Printf.sprintf "%s,%d,%d,%0.2f,%0.0f,%0.0f,," fn_id delay rule_number pl !lot_limit !lot_left  
+  | 3 -> Printf.sprintf "%s,%d,%d,%0.2f,%0.0f,%0.0f,%5.4f,%5.4f" 
+                       fn_id delay rule_number pl !lot_limit !lot_left !pl_upper !pl_lower
+  | _ -> raise Not_found;;
+Printf.printf "%s\n" daily_result_string ;;
 
 (* output csv files *)
 let out_csvs () = 

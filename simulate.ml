@@ -3,6 +3,7 @@ open CalendarLib
 type t = {
   nrow_:	int;
   pos_hist_:	Position.t array; (* position history *)
+  pl_unit_latent_: float array;
   pl_latent_:	float array;
   pl_total_:	float array;
   bid_:		float array;
@@ -32,6 +33,7 @@ let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t
   let nrow_mkt = Array.length cpr in
   let nrow_trd = Array.length trades in
   let pos_hist = Array.make nrow_mkt (Position.copy pos) in 
+  let upl = Array.create nrow_mkt 0.0 in 
   let lpl = Array.create nrow_mkt 0.0 in 
   let tpl = Array.create nrow_mkt 0.0 in 
   let bid = Array.create nrow_mkt 0.0 in 
@@ -77,40 +79,40 @@ let simulate ?(delay=0) ?(cover_rule=direct_cover) pos cpr hpr (trades : Trade.t
            (* print_string (Trade.from_array_to_string (Array.of_list covers_made));*)
            (Position.add_trade_list !p covers_made));
     (* latent pl, total pl *)
-    let (_, llpl, ttpl) = (Position.calc_pl !p mkt.Price.mid_) in
+    let (uupl, llpl, ttpl) = (Positionhandler.calc_pl !p mkt) in
     (* record *)
     pos_hist.(i) <- Position.copy (!p); (* COPY !! *)
-    lpl.(i) <- llpl; tpl.(i) <- ttpl; 
+    upl.(i) <- uupl; lpl.(i) <- llpl; tpl.(i) <- ttpl; 
     bid.(i) <- mkt.Price.bid_;
     ask.(i) <- mkt.Price.ask_;
     h_bid.(i) <- hpr.(i).Price.bid_;
     h_ask.(i) <- hpr.(i).Price.ask_;
     ()
   done;
-  ({nrow_=nrow_mkt;pos_hist_=pos_hist; pl_latent_=lpl; pl_total_=tpl;
+  ({nrow_=nrow_mkt;pos_hist_=pos_hist; pl_unit_latent_=upl; pl_latent_=lpl; pl_total_=tpl;
    bid_=bid; ask_=ask; h_bid_=h_bid; h_ask_=h_ask},
    (!cover_result))
  
 let to_string 
-  {nrow_=nrow; pos_hist_=pos_hist; pl_latent_=lpl; pl_total_=tpl;
+  {nrow_=nrow; pos_hist_=pos_hist; pl_unit_latent_=upl; pl_latent_=lpl; pl_total_=tpl;
    bid_=bid; ask_=ask; h_bid_=h_bid; h_ask_=h_ask} =
    let s = ref "" in
    for i=0 to (nrow-1) do
-     s := !s ^ (Printf.sprintf "%s,%10.2f,%10.2f,%7.5f,%7.5f,%7.5f,%7.5f\n"
+     s := !s ^ (Printf.sprintf "%s,%8.5f,%10.2f,%10.2f,%7.5f,%7.5f,%7.5f,%7.5f\n"
                  (Position.to_string ~crlf:false pos_hist.(i))
-                 lpl.(i) tpl.(i) bid.(i) ask.(i) h_bid.(i) h_ask.(i))
+                 upl.(i) lpl.(i) tpl.(i) bid.(i) ask.(i) h_bid.(i) h_ask.(i))
    done;
    !s
 
 let to_csv ~name 
-  {nrow_=nrow; pos_hist_=pos_hist; pl_latent_=lpl; pl_total_=tpl;
+  {nrow_=nrow; pos_hist_=pos_hist; pl_unit_latent_=upl;pl_latent_=lpl; pl_total_=tpl;
    bid_=bid; ask_=ask; h_bid_=h_bid; h_ask_=h_ask} =
    let oc = open_out name in
    for i=0 to (nrow-1) do
      output_string oc
-       (Printf.sprintf "%s,%10.2f,%10.2f,%7.5f,%7.5f,%7.5f,%7.5f\n"
+       (Printf.sprintf "%s,%8.5f,%10.2f,%10.2f,%7.5f,%7.5f,%7.5f,%7.5f\n"
            (Position.to_string ~crlf:false pos_hist.(i))
-           lpl.(i) tpl.(i) bid.(i) ask.(i) h_bid.(i) h_ask.(i))
+           upl.(i) lpl.(i) tpl.(i) bid.(i) ask.(i) h_bid.(i) h_ask.(i))
    done;
    close_out oc 
     

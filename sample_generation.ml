@@ -1,5 +1,6 @@
 (* sample data generation *)
 (* sample prices *)
+open Batteries;;
 let num = 10;; 
 Printf.printf "sample output file name(price)\n:";;
 let cp_ofn = read_line ();;
